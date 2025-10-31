@@ -1,10 +1,12 @@
-#include "app_context.hpp"
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_video.h>
+
 #include <stdexcept>
+
+#include "app_context.hpp"
 
 static void SDL_Throw(const char* err) {
   throw std::runtime_error(std::string(err) + ": " + SDL_GetError());

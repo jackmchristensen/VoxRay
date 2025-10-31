@@ -1,6 +1,7 @@
 // gl_utils.hpp
 #pragma once
 #include <GL/glew.h>
+
 #include <string>
 
 struct Shader       { GLuint id{}; GLenum type{}; };
