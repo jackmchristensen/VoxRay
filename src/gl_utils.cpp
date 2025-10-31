@@ -9,7 +9,6 @@ bool CompileShader(GLenum type, const char* path, Shader& out, std::string* err)
 
   if (source_string.empty()) {
     // TODO make error log more descriptive
-    printf("Failed to read shader file\n");
     *err = "Failed to load shader from path: ";
     *err += path;
     return false;
@@ -29,7 +28,6 @@ bool CompileShader(GLenum type, const char* path, Shader& out, std::string* err)
     return false;
   }
 
-  printf("Returning true!\n");
   out = Shader{ id, type };
   return true;
 }

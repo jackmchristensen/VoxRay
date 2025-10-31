@@ -1,7 +1,3 @@
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_init.h>
-#include <SDL3/SDL_video.h>
-
 #include "app/app_context.hpp"
 #include "gl_utils.hpp"
 
@@ -27,6 +23,7 @@ int main() {
   if (!CompileShader(GL_VERTEX_SHADER, vertex_path, vertex, &error))        { SDL_Log("%s", error.c_str()); return 1; }
   if (!CompileShader(GL_FRAGMENT_SHADER, fragment_path, fragment, &error))  { SDL_Log("%s", error.c_str()); return 1; }
   if (!LinkProgram(vertex, fragment, program, &error))                      { SDL_Log("%s", error.c_str()); return 1; }
+  Destroy(vertex); Destroy(fragment);
 
   VertexArray vao{}; Buffer pbo{};
   if (!MakeVao(vao)) return 1;
@@ -47,6 +44,10 @@ int main() {
     // Render(app);
   }
 
+  Destroy(vao);
+  Destroy(program);
+  SDL_GL_DestroyContext(app.gl_context.get());
+  SDL_DestroyWindow(app.window.get());
   SDL_Quit();
   return 0;
 }
