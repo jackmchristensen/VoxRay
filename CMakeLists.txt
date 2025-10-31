@@ -10,8 +10,8 @@ set(SHADER_DIR ${CMAKE_SOURCE_DIR}/shaders)
 
 add_executable(VoxRay
   ${SRC_DIR}/main.cpp
+  ${SRC_DIR}/gl_utils.cpp
   ${SRC_DIR}/app/app_context.cpp
-  ${SRC_DIR}/gl/gl_utils.cpp
 )
 
 add_custom_command(
