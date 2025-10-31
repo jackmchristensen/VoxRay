@@ -40,8 +40,9 @@ int main() {
     BindVao(vao);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
-    SDL_GL_SwapWindow(app.window.get());
-    // Render(app);
+    // Currently just swaps window
+    // Keeping this because I might add more functionality in the future
+    Render(app);
   }
 
   Destroy(vao);
