@@ -3,7 +3,7 @@
 #include <SDL3/SDL_video.h>
 
 #include "app/app_context.hpp"
-#include "gl/gl_utils.hpp"
+#include "gl_utils.hpp"
 
 int main() {
   AppConfig config{
