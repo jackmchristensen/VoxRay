@@ -28,9 +28,8 @@ int main() {
   if (!LinkProgram(vertex, fragment, program, &error))                      { SDL_Log("%s", error.c_str()); return 1; }
   Destroy(vertex); Destroy(fragment);
 
-  VertexArray vao{}; Buffer pbo{};
+  VertexArray vao{};
   if (!MakeVao(vao)) return 1;
-  if (!MakeBuffer(GL_PIXEL_UNPACK_BUFFER, app.width * app.height * 4, nullptr, GL_DYNAMIC_DRAW, pbo)) return 1;
 
   UseProgram(program);
   BindVao(vao);
