@@ -29,6 +29,9 @@ int main() {
   if (!MakeVao(vao)) return 1;
   if (!MakeBuffer(GL_PIXEL_UNPACK_BUFFER, app.width * app.height * 4, nullptr, GL_DYNAMIC_DRAW, pbo)) return 1;
 
+  UseProgram(program);
+  BindVao(vao);
+
   bool running = true;
   while (running) {
     glViewport(0, 0, app.width, app.height);
@@ -36,8 +39,6 @@ int main() {
 
     PollInput(running);
 
-    UseProgram(program);
-    BindVao(vao);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     // Currently just swaps window

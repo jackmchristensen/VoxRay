@@ -66,9 +66,6 @@ bool MakeVao(VertexArray& out) {
   GLuint id = 0;
   glGenVertexArrays(1, &id);
   if (!id) return false;
-
-  glBindVertexArray(id);
-
   out = VertexArray{ id };
   return true;
 }
