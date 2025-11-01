@@ -51,10 +51,12 @@ AppContext MakeApp(AppConfig& config) {
   return app;
 }
 
+// Mask flag to signal for update 
 void PollInput(UpdateFlags& flags) {
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
+      // --- Check for key presses ---
       case SDL_EVENT_KEY_DOWN:
         switch (event.key.scancode) {
           case SDL_SCANCODE_ESCAPE:
@@ -63,6 +65,8 @@ void PollInput(UpdateFlags& flags) {
           default:
             continue;
         }
+
+      // --- Non key press events ---
       case SDL_EVENT_WINDOW_RESIZED:
         flags |= Resize;
         continue;
@@ -73,6 +77,7 @@ void PollInput(UpdateFlags& flags) {
   }
 }
 
+// Separate function from PollInputs()
 void UpdateState(UpdateFlags& flags, AppContext& app) {
   if ((flags & Resize) == Resize) {
     SDL_GetWindowSizeInPixels(app.window.get(), &app.width, &app.height);

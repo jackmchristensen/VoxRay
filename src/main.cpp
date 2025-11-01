@@ -1,3 +1,4 @@
+#include "app/camera.hpp"
 #include "gl_utils.hpp"
 #include <GL/glext.h>
 
@@ -9,7 +10,7 @@ int main() {
     "VoxRay", // title
     1280,     // width
     720,      // height
-    3,        // gl_major
+    4,        // gl_major
     3         // gl_minor
   };
 
@@ -31,6 +32,10 @@ int main() {
   VertexArray vao{};
   if (!MakeVao(vao)) return 1;
 
+  Buffer cam_ubo{};
+  if (!MakeBuffer(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*2 + sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW, cam_ubo)) return 1;
+  glBindBufferBase(GL_UNIFORM_BUFFER, 0, cam_ubo.id);
+
   UseProgram(program);
   BindVao(vao);
 
@@ -41,6 +46,15 @@ int main() {
 
     PollInput(flags);
     if (flags != None) UpdateState(flags, app);
+
+    auto& c = ActiveCamera(app);
+    glm::mat4 V = cam::View(c);
+    glm::mat4 P = cam::Project(c);
+    glm::vec4 pos = glm::vec4(glm::vec3(c.position), 1.f);
+    glBindBuffer(cam_ubo.target, cam_ubo.id);
+    glBufferSubData(cam_ubo.target, 0, sizeof(glm::mat4), &V[0][0]);
+    glBufferSubData(cam_ubo.target, sizeof(glm::mat4), sizeof(glm::mat4), &P[0][0]);
+    glBufferSubData(cam_ubo.target, sizeof(glm::mat4), sizeof(glm::vec4), &pos.x);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
 

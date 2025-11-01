@@ -1,10 +1,15 @@
-#version 330 core
+#version 430 core
+
+layout(std140, binding = 0) uniform camera_block {
+  mat4 u_view;
+  mat4 u_proj;
+  vec4 u_camera_pos;
+};
 
 in vec2 v_uv;
 
 out vec4 fragColor;
 
 void main() {
-  fragColor = vec4(v_uv.x, v_uv.y, 0.0f, 1.0f);
-  // fragColor = vec4(0.243f, 0.353f, 0.541f, 1.0f);
+  fragColor = vec4(v_uv.xy, 0.0, 1.0);
 }
