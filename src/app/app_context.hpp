@@ -6,6 +6,8 @@
 #include <memory>
 #include <type_traits>
 
+#include "update_flags.hpp"
+
 using Win = std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)>;
 using GLc = std::unique_ptr<std::remove_pointer_t<SDL_GLContext>, decltype(&SDL_GL_DestroyContext)>;
 
@@ -25,5 +27,6 @@ struct AppConfig {
 };
 
 AppContext MakeApp(AppConfig& config);
-void PollInput(bool& running);
-void Render(const AppContext& app);
+void PollInput(UpdateFlags& flags);
+void UpdateState(UpdateFlags& flags, AppContext& app);
+void Draw(const AppContext& app);

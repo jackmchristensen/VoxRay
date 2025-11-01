@@ -7,6 +7,7 @@
 #include <stdexcept>
 
 #include "app_context.hpp"
+#include "update_flags.hpp"
 
 static void SDL_Throw(const char* err) {
   throw std::runtime_error(std::string(err) + ": " + SDL_GetError());
@@ -50,25 +51,34 @@ AppContext MakeApp(AppConfig& config) {
   return app;
 }
 
-void PollInput(bool& running) {
+void PollInput(UpdateFlags& flags) {
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
       case SDL_EVENT_KEY_DOWN:
         switch (event.key.scancode) {
           case SDL_SCANCODE_ESCAPE:
-            running = false;
+            flags |= Stop;
             break;
           default:
             continue;
         }
+      case SDL_EVENT_WINDOW_RESIZED:
+        flags |= Resize;
+        continue;
       case SDL_EVENT_QUIT:
-        running = false;
+        flags |= Stop;
         break;
     }
   }
 }
 
-void Render(const AppContext& app) {
+void UpdateState(UpdateFlags& flags, AppContext& app) {
+  if ((flags & Resize) == Resize) {
+    SDL_GetWindowSizeInPixels(app.window.get(), &app.width, &app.height);
+  }
+}
+
+void Draw(const AppContext& app) {
   SDL_GL_SwapWindow(app.window.get());
 }

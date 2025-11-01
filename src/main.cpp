@@ -1,5 +1,8 @@
-#include "app/app_context.hpp"
 #include "gl_utils.hpp"
+#include <GL/glext.h>
+
+#include "app/update_flags.hpp"
+#include "app/app_context.hpp"
 
 int main() {
   AppConfig config{
@@ -32,18 +35,19 @@ int main() {
   UseProgram(program);
   BindVao(vao);
 
-  bool running = true;
-  while (running) {
+  UpdateFlags flags = None;
+  while ((flags & Stop) != Stop) {
     glViewport(0, 0, app.width, app.height);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    PollInput(running);
+    PollInput(flags);
+    UpdateState(flags, app);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     // Currently just swaps window
     // Keeping this because I might add more functionality in the future
-    Render(app);
+    Draw(app);
   }
 
   Destroy(vao);
