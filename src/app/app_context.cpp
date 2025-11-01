@@ -76,6 +76,7 @@ void PollInput(UpdateFlags& flags) {
 void UpdateState(UpdateFlags& flags, AppContext& app) {
   if ((flags & Resize) == Resize) {
     SDL_GetWindowSizeInPixels(app.window.get(), &app.width, &app.height);
+    flags &= ~Resize;
   }
 }
 

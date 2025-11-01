@@ -41,7 +41,7 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     PollInput(flags);
-    if ((flags & None) == None) UpdateState(flags, app);
+    if (flags != None) UpdateState(flags, app);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
