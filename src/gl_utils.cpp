@@ -70,11 +70,6 @@ bool MakeVao(VertexArray& out) {
   return true;
 }
 
-// bool UpdateBuffer(GLsizeiptr size, const void* data, Buffer& buffer) {
-//   glBindBuffer(buffer.target, buffer.id);
-//   glBufferSubData()
-// }
-
 void Destroy(const Shader& s)      { if (s.id) glDeleteShader(s.id); }
 void Destroy(const Program& p)     { if (p.id) glDeleteProgram(p.id); }
 void Destroy(const Buffer& b)      { if (b.id) glDeleteBuffers(1, &const_cast<GLuint&>(b.id)); }
