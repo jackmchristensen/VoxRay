@@ -7,6 +7,7 @@
 #include <stdexcept>
 
 #include "app_context.hpp"
+#include "camera.hpp"
 #include "update_flags.hpp"
 
 static void SDL_Throw(const char* err) {
@@ -75,6 +76,7 @@ void PollInput(UpdateFlags& flags) {
 void UpdateState(UpdateFlags& flags, AppContext& app) {
   if ((flags & Resize) == Resize) {
     SDL_GetWindowSizeInPixels(app.window.get(), &app.width, &app.height);
+    cam::SetAspectRatio(app.cameras[app.active], float(app.width) / app.height);
     flags &= ~Resize;
   }
 }
