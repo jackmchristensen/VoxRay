@@ -32,6 +32,9 @@ struct AppContext {
   }
 };
 
+inline       cam::Camera& ActiveCamera(AppContext& app)       { return app.cameras[app.active]; }
+inline const cam::Camera& ActiveCamera(const AppContext& app) { return app.cameras[app.active]; }
+
 // Initial configuration settings
 struct AppConfig {
   const char* title = "OpenGL Window";
