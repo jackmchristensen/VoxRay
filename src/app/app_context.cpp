@@ -41,13 +41,12 @@ AppContext MakeApp(AppConfig& config) {
 
   SDL_GL_SetSwapInterval(1);
 
-  AppContext app{
-    Win{window, SDL_DestroyWindow},
-    GLc{context, SDL_GL_DestroyContext},
-    config.width,
-    config.height
-  };
-
+  AppContext app{};
+  app.window      = Win{ window, SDL_DestroyWindow };
+  app.gl_context  = GLc { context, SDL_GL_DestroyContext };
+  app.width       = config.width;
+  app.height      = config.height;
+      
   return app;
 }
 

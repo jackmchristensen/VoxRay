@@ -25,6 +25,11 @@ struct AppContext {
   // --- Cameras ---
   std::vector<cam::Camera>  cameras;
   std::size_t               active = 0;
+
+  AppContext() {
+    cameras.emplace_back();
+    active = 0;
+  }
 };
 
 // Initial configuration settings
