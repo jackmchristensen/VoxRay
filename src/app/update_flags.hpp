@@ -8,7 +8,8 @@ enum UpdateFlags : uint8_t {
   Stop    = 1 << 0,
   Render  = 1 << 1,
   Zoom    = 1 << 2,
-  Resize  = 1 << 3
+  Resize  = 1 << 3,
+  Orbit   = 1 << 4
 };
 
 inline UpdateFlags operator|(UpdateFlags a, UpdateFlags b) {
