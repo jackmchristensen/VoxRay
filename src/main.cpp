@@ -33,7 +33,7 @@ int main() {
   Shader vertex{}; Shader fragment{}; Program display_prog{};
   if (!CompileShader(GL_VERTEX_SHADER, vertex_path, vertex, &error))        { SDL_Log("%s", error.c_str()); return 1; }
   if (!CompileShader(GL_FRAGMENT_SHADER, fragment_path, fragment, &error))  { SDL_Log("%s", error.c_str()); return 1; }
-  if (!LinkProgram(vertex, fragment, display_prog, &error))                      { SDL_Log("%s", error.c_str()); return 1; }
+  if (!LinkProgram(vertex, fragment, display_prog, &error))                 { SDL_Log("%s", error.c_str()); return 1; }
   Destroy(vertex); Destroy(fragment);
 
   VertexArray vao{};
