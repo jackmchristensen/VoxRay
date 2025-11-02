@@ -23,6 +23,8 @@ struct Camera{
   float aspect    = 16.f/9.f;
   float near_clip = 0.1f;
   float far_clip  = 1000.f;
+
+  mutable glm::mat4 view{1.f}, proj{1.f};
 };
 
 
@@ -101,16 +103,16 @@ inline void SetClip(Camera& c, float near_clip, float far_clip) { c.near_clip = 
 
 // --- Matrix builders ---
 
-inline glm::mat4 View(const Camera& c) {
-  return glm::lookAt(c.position, c.position + c.forward, c.up);
+inline void UpdateView(Camera& c) {
+  c.view = glm::lookAt(c.position, c.position+c.forward, c.up);
 }
 
-inline glm::mat4 Project(const Camera& c) {
-  return glm::perspective(c.fov_deg, c.aspect, c.near_clip, c.far_clip);
+inline void UpdateProject(Camera& c) {
+  c.proj = glm::perspective(c.fov_deg, c.aspect, c.near_clip, c.far_clip);
 }
 
 inline glm::mat4 ViewProject(const Camera& c) { 
-  return Project(c) * View(c);
+  return c.proj * c.view;
 }
 
 }; // namespace cam
