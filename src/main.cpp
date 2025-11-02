@@ -48,13 +48,11 @@ int main() {
     if (flags != None) UpdateState(flags, app);
 
     auto& c = ActiveCamera(app);
-    glm::mat4 V = cam::View(c);
-    glm::mat4 P = cam::Project(c);
     glm::vec4 pos = glm::vec4(glm::vec3(c.position), 1.f);
     glBindBuffer(cam_ubo.target, cam_ubo.id);
-    glBufferSubData(cam_ubo.target, 0, sizeof(glm::mat4), &cam::View(c)[0][0]);
-    glBufferSubData(cam_ubo.target, sizeof(glm::mat4), sizeof(glm::mat4), &P[0][0]);
-    glBufferSubData(cam_ubo.target, sizeof(glm::mat4), sizeof(glm::vec4), &pos.x);
+    glBufferSubData(cam_ubo.target, 0,                   sizeof(glm::mat4), &c.view[0][0]);
+    glBufferSubData(cam_ubo.target, sizeof(glm::mat4),   sizeof(glm::mat4), &c.proj[0][0]);
+    glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2, sizeof(glm::vec4), &pos.x);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
