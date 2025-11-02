@@ -50,6 +50,23 @@ bool LinkProgram(const Shader& vertex, const Shader& fragment, Program& out, std
   return true;
 }
 
+bool LinkProgram(const Shader& compute, Program& out, std::string* err) {
+  GLuint program = glCreateProgram();
+  glAttachShader(program, compute.id);
+  glLinkProgram(program);
+
+  GLint ok = 0; glGetProgramiv(program, GL_LINK_STATUS, &ok);
+  if (!ok) {
+    glDeleteProgram(program);
+    // TODO make error log more descriptive
+    *err = "Program link failed";
+    return false;
+  }
+
+  out = Program{ program };
+  return true;
+}
+
 bool MakeBuffer(GLenum target, GLsizeiptr size, const void* data, GLenum usage, Buffer& out) {
   GLuint id = 0;
   glGenBuffers(1, &id);
@@ -67,6 +84,15 @@ bool MakeVao(VertexArray& out) {
   glGenVertexArrays(1, &id);
   if (!id) return false;
   out = VertexArray{ id };
+  return true;
+}
+
+bool MakeTexture2D(GLenum target, GLenum format, GLsizei width, GLsizei height, Texture& out) {
+  GLuint id = 0;
+  glCreateTextures(target, 1, &id);
+  if (!id) return false;
+  glTextureStorage2D(id, 1, format, width, height);
+  out = Texture{ id, target, format };
   return true;
 }
 

@@ -21,22 +21,33 @@ int main() {
     return 1;
   }
 
+  std::string error;
+  const char* compute_path = "shaders/compute.glsl";
+  Shader compute{}; Program compute_prog;
+  if (!CompileShader(GL_COMPUTE_SHADER, compute_path, compute, &error))     { SDL_Log("%s", error.c_str()); return 1; }
+  if (!LinkProgram(compute, compute_prog, &error))                          { SDL_Log("%s", error.c_str()); return 1; }
+  Destroy(compute);
+
   const char* vertex_path = "shaders/vertex.glsl";
   const char* fragment_path = "shaders/fragment.glsl";
-  Shader vertex{}; Shader fragment{}; Program program{}; std::string error;
+  Shader vertex{}; Shader fragment{}; Program display_prog{};
   if (!CompileShader(GL_VERTEX_SHADER, vertex_path, vertex, &error))        { SDL_Log("%s", error.c_str()); return 1; }
   if (!CompileShader(GL_FRAGMENT_SHADER, fragment_path, fragment, &error))  { SDL_Log("%s", error.c_str()); return 1; }
-  if (!LinkProgram(vertex, fragment, program, &error))                      { SDL_Log("%s", error.c_str()); return 1; }
+  if (!LinkProgram(vertex, fragment, display_prog, &error))                      { SDL_Log("%s", error.c_str()); return 1; }
   Destroy(vertex); Destroy(fragment);
 
   VertexArray vao{};
   if (!MakeVao(vao)) return 1;
 
+  UseProgram(display_prog);
   Buffer cam_ubo{};
   if (!MakeBuffer(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*2 + sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW, cam_ubo)) return 1;
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, cam_ubo.id);
 
-  UseProgram(program);
+  Texture tex{};
+  if (!MakeTexture2D(GL_TEXTURE_2D, GL_RGBA32F, app.width, app.height, tex)) return 1;
+  glBindImageTexture(0, tex.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, tex.format);
+
   BindVao(vao);
 
   UpdateFlags flags = None;
@@ -62,7 +73,8 @@ int main() {
   }
 
   Destroy(vao);
-  Destroy(program);
+  Destroy(compute_prog);
+  Destroy(display_prog);
   SDL_GL_DestroyContext(app.gl_context.get());
   SDL_DestroyWindow(app.window.get());
   SDL_Quit();
