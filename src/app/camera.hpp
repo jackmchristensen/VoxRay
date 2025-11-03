@@ -55,14 +55,15 @@ inline void TranslateLocal(Camera& c, const glm::vec3& delta) {
 // Rotates along pitch and yaw
 // Ignores roll
 inline void Rotate(Camera& c, float yaw, float pitch) {
+  glm::mat3 rotate_y = glm::mat3(glm::rotate(glm::mat4(1.f), yaw, c.up));
+  c.forward = glm::normalize(rotate_y * c.forward);
+  c.up = glm::normalize(rotate_y * c.up);
+
   glm::vec3 right = Right(c.forward, c.up);
 
-  glm::quat quat_yaw    = glm::angleAxis(yaw, c.up);
-  glm::quat quat_pitch  = glm::angleAxis(pitch, right);
-  glm::quat quat_rotate = glm::normalize(quat_yaw * quat_pitch);
-
-  c.forward  = glm::normalize(quat_rotate * c.forward);
-  c.up       = glm::normalize(quat_rotate * c.up);
+  glm::mat3 rotate_x = glm::mat3(glm::rotate(glm::mat4(1.f), pitch, right));
+  c.forward = glm::normalize(rotate_x * c.forward);
+  c.up = glm::normalize(rotate_x * c.up);
 
   Orthonormalize(c);
 }
@@ -80,7 +81,7 @@ inline void Orbit(Camera& c, float delta_yaw, float delta_pitch) {
   to_cam = quat_rotate * to_cam;
   c.position = c.target + to_cam;
   c.forward = glm::normalize(c.target - c.position);
-  
+
   Orthonormalize(c);
 }
 
@@ -111,7 +112,7 @@ inline void UpdateProject(Camera& c) {
   c.proj = glm::perspective(c.fov_deg, c.aspect, c.near_clip, c.far_clip);
 }
 
-inline glm::mat4 ViewProject(const Camera& c) { 
+inline glm::mat4 ViewProject(const Camera& c) {
   return c.proj * c.view;
 }
 
