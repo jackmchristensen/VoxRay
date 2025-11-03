@@ -39,15 +39,15 @@ int main() {
   VertexArray vao{};
   if (!MakeVao(vao)) return 1;
 
-  UseProgram(display_prog);
   Buffer cam_ubo{};
   if (!MakeBuffer(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*2 + sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW, cam_ubo)) return 1;
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, cam_ubo.id);
 
   Texture tex{};
   if (!MakeTexture2D(GL_TEXTURE_2D, GL_RGBA32F, app.width, app.height, tex)) return 1;
-  glBindImageTexture(0, tex.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, tex.format);
+  glBindImageTexture(1, tex.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, tex.format);
 
+  // UseProgram(display_prog);
   BindVao(vao);
 
   UpdateFlags flags = None;
@@ -58,6 +58,7 @@ int main() {
     PollInput(flags);
     if (flags != None) UpdateState(flags, app);
 
+    UseProgram(compute_prog);
     auto& c = ActiveCamera(app);
     glm::vec4 pos = glm::vec4(glm::vec3(c.position), 1.f);
     glBindBuffer(cam_ubo.target, cam_ubo.id);
@@ -65,6 +66,14 @@ int main() {
     glBufferSubData(cam_ubo.target, sizeof(glm::mat4),   sizeof(glm::mat4), &c.proj[0][0]);
     glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2, sizeof(glm::vec4), &pos.x);
 
+    GLuint gx = (app.width + 16 - 1) / 16;
+    GLuint gy = (app.height + 16 - 1) / 16;
+    glDispatchCompute(gx, gy, 1);
+
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
+
+    UseProgram(display_prog);
+    glBindTextureUnit(0, tex.id);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     // Currently just swaps window
