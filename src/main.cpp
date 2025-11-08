@@ -1,9 +1,7 @@
-#include "app/camera.hpp"
-#include "gl_utils.hpp"
-#include <GL/glext.h>
-
 #include "app/update_flags.hpp"
 #include "app/app_context.hpp"
+#include "app/camera.hpp"
+#include "gl_utils.hpp"
 
 int main() {
   AppConfig config{
