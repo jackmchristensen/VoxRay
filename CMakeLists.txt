@@ -7,7 +7,17 @@ set(CMAKE_CUDA_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
-set(OUT_DIR ${CMAKE_SOURCE_DIR}/bin)
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(STATUS "Debug build")
+    set(OUT_DIR ${CMAKE_SOURCE_DIR}/bin/debug)
+elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
+    message(STATUS "Release build")
+    set(OUT_DIR ${CMAKE_SOURCE_DIR}/bin/release)
+else ()
+    message(STATUS "Default build")
+    set(OUT_DIR ${CMAKE_SOURCE_DIR}/bin)
+endif ()
+
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 set(SHADER_DIR ${CMAKE_SOURCE_DIR}/shaders)
 
