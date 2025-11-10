@@ -1,7 +1,11 @@
-bin/*
-build/*
+# Build and compile files
+bin*
+build*
+compile_commands.json
 
-run.sh
+# Dotfiles
 .zed/*
 .cache/*
-compile_commands.json
+
+# Helper scripts
+*.sh
