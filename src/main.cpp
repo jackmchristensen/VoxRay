@@ -38,7 +38,7 @@ int main() {
   if (!MakeVao(vao)) return 1;
 
   Buffer cam_ubo{};
-  if (!MakeBuffer(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*2 + sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW, cam_ubo)) return 1;
+  if (!MakeBuffer(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*2 + sizeof(glm::vec4) + sizeof(GLuint)*2, nullptr, GL_DYNAMIC_DRAW, cam_ubo)) return 1;
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, cam_ubo.id);
 
   Texture tex{};
@@ -63,6 +63,9 @@ int main() {
     glBufferSubData(cam_ubo.target, 0,                   sizeof(glm::mat4), &c.view[0][0]);
     glBufferSubData(cam_ubo.target, sizeof(glm::mat4),   sizeof(glm::mat4), &c.proj[0][0]);
     glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2, sizeof(glm::vec4), &pos.x);
+    glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2 + sizeof(glm::vec4), sizeof(GLuint), &app.width);
+    glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2 + sizeof(glm::vec4) + sizeof(GLuint), sizeof(GLuint), &app.height);
+    // printf("(%d, %d)\n", app.width, app.height);
 
     GLuint gx = (app.width + 16 - 1) / 16;
     GLuint gy = (app.height + 16 - 1) / 16;
