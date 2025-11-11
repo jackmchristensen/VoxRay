@@ -15,7 +15,7 @@ static void SDL_Throw(const char* err) {
 }
 
 // Handles creation and initialization of SDL components
-AppContext MakeApp(AppConfig& config) {
+AppContext makeApp(AppConfig& config) {
   if (!SDL_Init(SDL_INIT_VIDEO)) SDL_Throw("SDL_Init");
 
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, config.gl_major);
@@ -47,12 +47,12 @@ AppContext MakeApp(AppConfig& config) {
   app.gl_context  = GLc { context, SDL_GL_DestroyContext };
   app.width       = config.width;
   app.height      = config.height;
-      
+
   return app;
 }
 
-// Mask flag to signal for update 
-void PollInput(UpdateFlags& flags) {
+// Mask flag to signal for update
+void pollInput(UpdateFlags& flags) {
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
@@ -78,25 +78,25 @@ void PollInput(UpdateFlags& flags) {
 }
 
 // Separate function from PollInputs()
-void UpdateState(UpdateFlags& flags, AppContext& app) {
+void updateState(UpdateFlags& flags, AppContext& app) {
   auto& camera = ActiveCamera(app);
 
   if ((flags & Resize) == Resize) {
     SDL_GetWindowSizeInPixels(app.window.get(), &app.width, &app.height);
 
     cam::Camera& c = ActiveCamera(app);
-    cam::SetAspectRatio(c, float(app.width) / app.height);
+    cam::setAspectRatio(c, float(app.width) / app.height);
 
     flags &= ~Resize;
   }
 
   if ((flags & Orbit) == Orbit) {
-    cam::UpdateView(camera);
+    cam::updateView(camera);
 
     flags &= Orbit;
   }
 }
 
-void Draw(const AppContext& app) {
+void draw(const AppContext& app) {
   SDL_GL_SwapWindow(app.window.get());
 }

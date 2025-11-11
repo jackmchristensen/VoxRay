@@ -44,7 +44,7 @@ struct AppConfig {
   int gl_minor = 3;
 };
 
-AppContext MakeApp(AppConfig& config);
-void PollInput(UpdateFlags& flags);
-void UpdateState(UpdateFlags& flags, AppContext& app);
-void Draw(const AppContext& app);
+AppContext makeApp(AppConfig& config);
+void pollInput(UpdateFlags& flags);
+void updateState(UpdateFlags& flags, AppContext& app);
+void draw(const AppContext& app);

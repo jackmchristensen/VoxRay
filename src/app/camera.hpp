@@ -30,11 +30,11 @@ struct Camera{
 
 // --- Simple helper functions ---
 
-inline glm::vec3 Right(const glm::vec3& forward, const glm::vec3& up) {
+inline glm::vec3 getRight(const glm::vec3& forward, const glm::vec3& up) {
   return glm::normalize(glm::cross(forward, up));
 }
 
-inline void Orthonormalize(Camera& c) {
+inline void orthonormalize(Camera& c) {
   c.forward  = glm::normalize(c.forward);
   glm::vec3 right = glm::normalize(glm::cross(c.forward, c.up));
   c.up       = glm::normalize(glm::cross(c.forward, right));
@@ -43,36 +43,36 @@ inline void Orthonormalize(Camera& c) {
 
 // --- Mutators ---
 
-inline void TranslateWorld(Camera& c, const glm::vec3& delta) {
+inline void translateWorld(Camera& c, const glm::vec3& delta) {
   c.position += delta;
 }
 
-inline void TranslateLocal(Camera& c, const glm::vec3& delta) {
-  glm::vec3 right = Right(c.forward, c.up);
+inline void translateLocal(Camera& c, const glm::vec3& delta) {
+  glm::vec3 right = getRight(c.forward, c.up);
   c.position += right * delta.x + c.up * delta.y + c.forward * delta.z;
 }
 
 // Rotates along pitch and yaw
 // Ignores roll
-inline void Rotate(Camera& c, float yaw, float pitch) {
+inline void rotate(Camera& c, float yaw, float pitch) {
   glm::mat3 rotate_y = glm::mat3(glm::rotate(glm::mat4(1.f), yaw, c.up));
   c.forward = glm::normalize(rotate_y * c.forward);
   c.up = glm::normalize(rotate_y * c.up);
 
-  glm::vec3 right = Right(c.forward, c.up);
+  glm::vec3 right = getRight(c.forward, c.up);
 
   glm::mat3 rotate_x = glm::mat3(glm::rotate(glm::mat4(1.f), pitch, right));
   c.forward = glm::normalize(rotate_x * c.forward);
   c.up = glm::normalize(rotate_x * c.up);
 
-  Orthonormalize(c);
+  orthonormalize(c);
 }
 
 // Rotates camera around a target position
 // Updates both position and rotation of the camera
-inline void Orbit(Camera& c, float delta_yaw, float delta_pitch) {
+inline void orbit(Camera& c, float delta_yaw, float delta_pitch) {
   glm::vec3 to_cam = c.position - c.target;
-  glm::vec3 right = Right(c.forward, c.up);
+  glm::vec3 right = getRight(c.forward, c.up);
 
   glm::quat quat_yaw    = glm::angleAxis(delta_yaw, c.up);
   glm::quat quat_pitch  = glm::angleAxis(delta_pitch, right);
@@ -82,15 +82,15 @@ inline void Orbit(Camera& c, float delta_yaw, float delta_pitch) {
   c.position = c.target + to_cam;
   c.forward = glm::normalize(c.target - c.position);
 
-  Orthonormalize(c);
+  orthonormalize(c);
 }
 
-inline void ZoomFOV(Camera& c, float delta_degrees) {
+inline void zoomFOV(Camera& c, float delta_degrees) {
   c.fov_deg = glm::clamp(c.fov_deg + delta_degrees, 5.f, 180.f);
 }
 
 // Positive = dolly forward; Negative = dolly backwards
-inline void Dolly(Camera& c, float amount) {
+inline void dolly(Camera& c, float amount) {
   c.position += c.forward * amount;
   c.target += c.forward * amount;
 }
@@ -98,21 +98,21 @@ inline void Dolly(Camera& c, float amount) {
 
 // --- Setters ---
 
-inline void SetAspectRatio(Camera& c, float aspect) { c.aspect = aspect; }
-inline void SetClip(Camera& c, float near_clip, float far_clip) { c.near_clip = near_clip; c.far_clip = far_clip; }
+inline void setAspectRatio(Camera& c, float aspect) { c.aspect = aspect; }
+inline void setClip(Camera& c, float near_clip, float far_clip) { c.near_clip = near_clip; c.far_clip = far_clip; }
 
 
 // --- Matrix builders ---
 
-inline void UpdateView(Camera& c) {
+inline void updateView(Camera& c) {
   c.view = glm::lookAt(c.position, c.position+c.forward, c.up);
 }
 
-inline void UpdateProject(Camera& c) {
+inline void updateProject(Camera& c) {
   c.proj = glm::perspective(c.fov_deg, c.aspect, c.near_clip, c.far_clip);
 }
 
-inline glm::mat4 ViewProject(const Camera& c) {
+inline glm::mat4 viewProject(const Camera& c) {
   return c.proj * c.view;
 }
 
