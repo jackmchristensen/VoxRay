@@ -32,8 +32,8 @@ struct AppContext {
   }
 };
 
-inline       cam::Camera& ActiveCamera(AppContext& app)       { return app.cameras[app.active]; }
-inline const cam::Camera& ActiveCamera(const AppContext& app) { return app.cameras[app.active]; }
+inline       cam::Camera& activeCamera(AppContext& app)       { return app.cameras[app.active]; }
+inline const cam::Camera& activeCamera(const AppContext& app) { return app.cameras[app.active]; }
 
 // Initial configuration settings
 struct AppConfig {
