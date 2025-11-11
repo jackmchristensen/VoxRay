@@ -79,12 +79,12 @@ void pollInput(UpdateFlags& flags) {
 
 // Separate function from PollInputs()
 void updateState(UpdateFlags& flags, AppContext& app) {
-  auto& camera = ActiveCamera(app);
+  auto& camera = activeCamera(app);
 
   if ((flags & Resize) == Resize) {
     SDL_GetWindowSizeInPixels(app.window.get(), &app.width, &app.height);
 
-    cam::Camera& c = ActiveCamera(app);
+    cam::Camera& c = activeCamera(app);
     cam::setAspectRatio(c, float(app.width) / app.height);
 
     flags &= ~Resize;
