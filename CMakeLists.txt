@@ -23,7 +23,7 @@ set(SHADER_DIR ${CMAKE_SOURCE_DIR}/shaders)
 
 add_executable(VoxRay
   ${SRC_DIR}/main.cpp
-  ${SRC_DIR}/gl_utils.cpp
+  ${SRC_DIR}/graphics/gl_utils.cpp
   ${SRC_DIR}/app/app_context.cpp
 )
 
