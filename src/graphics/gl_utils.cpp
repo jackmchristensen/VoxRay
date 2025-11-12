@@ -3,6 +3,8 @@
 
 #include "gl_utils.hpp"
 
+namespace graphics {
+
 bool compileShader(GLenum type, const char* path, Shader& out, std::string* err) {
   std::fstream in { path };
   std::string source_string = { std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>() };
@@ -100,3 +102,5 @@ void destroy(const Shader& s)      { if (s.id) glDeleteShader(s.id); }
 void destroy(const Program& p)     { if (p.id) glDeleteProgram(p.id); }
 void destroy(const Buffer& b)      { if (b.id) glDeleteBuffers(1, &const_cast<GLuint&>(b.id)); }
 void destroy(const VertexArray& a) { if (a.id) glDeleteVertexArrays(1, &const_cast<GLuint&>(a.id)); }
+
+}; // namespace graphics

@@ -23,27 +23,27 @@ int main() {
 
   std::string error;
   const char* compute_path = "shaders/compute.glsl";
-  Shader compute{}; Program compute_prog;
+  graphics::Shader compute{}; graphics::Program compute_prog;
   if (!compileShader(GL_COMPUTE_SHADER, compute_path, compute, &error))     { SDL_Log("%s", error.c_str()); return 1; }
   if (!linkProgram(compute, compute_prog, &error))                          { SDL_Log("%s", error.c_str()); return 1; }
   destroy(compute);
 
   const char* vertex_path = "shaders/vertex.glsl";
   const char* fragment_path = "shaders/fragment.glsl";
-  Shader vertex{}; Shader fragment{}; Program display_prog{};
+  graphics::Shader vertex{}; graphics::Shader fragment{}; graphics::Program display_prog{};
   if (!compileShader(GL_VERTEX_SHADER, vertex_path, vertex, &error))        { SDL_Log("%s", error.c_str()); return 1; }
   if (!compileShader(GL_FRAGMENT_SHADER, fragment_path, fragment, &error))  { SDL_Log("%s", error.c_str()); return 1; }
   if (!linkProgram(vertex, fragment, display_prog, &error))                 { SDL_Log("%s", error.c_str()); return 1; }
   destroy(vertex); destroy(fragment);
 
-  VertexArray vao{};
+  graphics::VertexArray vao{};
   if (!makeVao(vao)) return 1;
 
-  Buffer cam_ubo{};
+  graphics::Buffer cam_ubo{};
   if (!makeBuffer(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*2 + sizeof(glm::vec4) + sizeof(GLuint)*2, nullptr, GL_DYNAMIC_DRAW, cam_ubo)) return 1;
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, cam_ubo.id);
 
-  Texture tex{};
+  graphics::Texture tex{};
   if (!makeTexture2D(GL_TEXTURE_2D, GL_RGBA32F, app.width, app.height, tex)) return 1;
   glBindImageTexture(1, tex.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, tex.format);
 

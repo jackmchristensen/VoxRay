@@ -4,6 +4,8 @@
 
 #include <string>
 
+namespace graphics {
+
 struct Shader       { GLuint id{}; GLenum type{}; };
 struct Program      { GLuint id{}; };
 struct Buffer       { GLuint id{}; GLenum target{}; };
@@ -26,3 +28,5 @@ void destroy(const VertexArray& v);
 inline void useProgram(const Program& p) { glUseProgram(p.id); }
 inline void bindBuffer(const Buffer& b) { glBindBuffer(b.target, b.id); }
 inline void bindVao(const VertexArray& v) { glBindVertexArray(v.id); }
+
+}; // namespace graphics
