@@ -60,7 +60,7 @@ void pollInput(UpdateFlags& flags) {
       case SDL_EVENT_KEY_DOWN:
         switch (event.key.scancode) {
           case SDL_SCANCODE_ESCAPE:
-            flags |= Stop;
+            flags |= STOP;
             break;
           default:
             continue;
@@ -68,10 +68,10 @@ void pollInput(UpdateFlags& flags) {
 
       // --- Non key press events ---
       case SDL_EVENT_WINDOW_RESIZED:
-        flags |= Resize;
+        flags |= RESIZE;
         continue;
       case SDL_EVENT_QUIT:
-        flags |= Stop;
+        flags |= STOP;
         break;
     }
   }
@@ -81,19 +81,19 @@ void pollInput(UpdateFlags& flags) {
 void updateState(UpdateFlags& flags, AppContext& app) {
   auto& camera = activeCamera(app);
 
-  if ((flags & Resize) == Resize) {
+  if ((flags & RESIZE) == RESIZE) {
     SDL_GetWindowSizeInPixels(app.window.get(), &app.width, &app.height);
 
     cam::Camera& c = activeCamera(app);
     cam::setAspectRatio(c, float(app.width) / app.height);
 
-    flags &= ~Resize;
+    flags &= ~RESIZE;
   }
 
-  if ((flags & Orbit) == Orbit) {
+  if ((flags & ORBIT) == ORBIT) {
     cam::updateView(camera);
 
-    flags &= Orbit;
+    flags &= ORBIT;
   }
 }
 
