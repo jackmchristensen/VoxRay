@@ -52,10 +52,15 @@ AppContext makeApp(AppConfig& config) {
 
 // Mask flag to signal for update
 void pollInput(UpdateFlags& flags, InputState& input) {
+  // Rest per-frame data
+  input.mouse_dx = 0.f;
+  input.mouse_dy = 0.f;
+  input.scroll_dx = 0.f;
+  input.scroll_dy = 0.f;
+
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
-      // --- Check for key presses ---
       case SDL_EVENT_KEY_DOWN:
         if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
             flags |= STOP;
@@ -76,15 +81,18 @@ void pollInput(UpdateFlags& flags, InputState& input) {
         if (event.button.button == 1) input.lmb_held = true;
         if (event.button.button == 2) input.mmb_held = true;
         if (event.button.button == 3) input.rmb_held = true;
-
-        if (event.button.button == 3 && input.alt_held) {
-            flags |= ORBIT;
-        }
         break;
       case SDL_EVENT_MOUSE_BUTTON_UP:
         if (event.button.button == 1) input.lmb_held = false;
         if (event.button.button == 2) input.mmb_held = false;
         if (event.button.button == 3) input.rmb_held = false;
+        break;
+      case SDL_EVENT_MOUSE_MOTION:
+        if (input.alt_held && input.rmb_held) {
+            input.mouse_dx += event.motion.xrel;
+            input.mouse_dy += event.motion.yrel;
+            flags |= ORBIT;
+        }
         break;
       case SDL_EVENT_WINDOW_RESIZED:
         flags |= RESIZE;
@@ -109,7 +117,11 @@ void updateState(UpdateFlags& flags, AppContext& app, InputState& input) {
   }
 
   if ((flags & ORBIT) == ORBIT) {
-    printf("Orbit activated!\n");
+    // printf("Orbit activated!\n");
+    printf("mouse_dx = %.9f\n", input.mouse_dx);
+    float yaw = input.mouse_dx * 0.02;
+    float pitch = input.mouse_dy * 0.02;
+    cam::orbit(camera, yaw, pitch);
     camera_moved = true;
     flags &= ~ORBIT;
   }
