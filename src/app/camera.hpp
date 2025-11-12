@@ -79,10 +79,9 @@ inline void orbit(Camera& c, float delta_yaw, float delta_pitch) {
   glm::quat quat_rotate = glm::normalize(quat_yaw * quat_pitch);
 
   to_cam = quat_rotate * to_cam;
+
   c.position = c.target + to_cam;
   c.forward = glm::normalize(c.target - c.position);
-
-  orthonormalize(c);
 }
 
 inline void zoomFOV(Camera& c, float delta_degrees) {

@@ -117,10 +117,8 @@ void updateState(UpdateFlags& flags, AppContext& app, InputState& input) {
   }
 
   if ((flags & ORBIT) == ORBIT) {
-    // printf("Orbit activated!\n");
-    printf("mouse_dx = %.9f\n", input.mouse_dx);
-    float yaw = input.mouse_dx * 0.02;
-    float pitch = input.mouse_dy * 0.02;
+    float yaw = input.mouse_dx * 0.01;
+    float pitch = input.mouse_dy * 0.01;
     cam::orbit(camera, yaw, pitch);
     camera_moved = true;
     flags &= ~ORBIT;

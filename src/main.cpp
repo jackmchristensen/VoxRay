@@ -55,13 +55,13 @@ int main() {
 
   // Test camera setup
   {
-    auto& check_cam = activeCamera(app);
-    orbit(check_cam, glm::pi<float>()/4.f, -glm::pi<float>()/8.f);
-    zoomFOV(check_cam, -30.f);
-    updateView(check_cam);
-    updateProject(check_cam);
-    printf("Camera position: (%.3f, %.3f, %.3f)\n", check_cam.position.x, check_cam.position.y, check_cam.position.z);
-    printf("Camera look vector: (%.3f, %.3f, %.3f)\n", check_cam.forward.x, check_cam.forward.y, check_cam.forward.z);
+    auto& test_cam = activeCamera(app);
+    orbit(test_cam, glm::pi<float>()/4.f, glm::pi<float>()/8.f);
+    zoomFOV(test_cam, -30.f);
+    updateView(test_cam);
+    updateProject(test_cam);
+    printf("Camera position: (%.3f, %.3f, %.3f)\n", test_cam.position.x, test_cam.position.y, test_cam.position.z);
+    printf("Camera look vector: (%.3f, %.3f, %.3f)\n", test_cam.forward.x, test_cam.forward.y, test_cam.forward.z);
   }
 
   UpdateFlags flags = NONE;
