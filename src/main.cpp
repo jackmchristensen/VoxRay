@@ -1,7 +1,8 @@
 #include "app/update_flags.hpp"
 #include "app/app_context.hpp"
 #include "app/camera.hpp"
-#include "gl_utils.hpp"
+
+#include "graphics/gl_utils.hpp"
 
 int main() {
   AppConfig config{
@@ -13,6 +14,7 @@ int main() {
   };
 
   AppContext app = makeApp(config);
+  InputState input;
 
   if (glewInit() != GLEW_OK) {
     SDL_Log("Failed to initialize GLEW");
@@ -48,16 +50,27 @@ int main() {
   // UseProgram(display_prog);
   bindVao(vao);
 
-  UpdateFlags flags = None;
-  while ((flags & Stop) != Stop) {
+  // Test camera setup
+  {
+    auto& check_cam = activeCamera(app);
+    cam::orbit(check_cam, glm::pi<float>()/4.f, -glm::pi<float>()/8.f);
+    cam::zoomFOV(check_cam, -30.f);
+    cam::updateView(check_cam);
+    cam::updateProject(check_cam);
+    printf("Camera position: (%.3f, %.3f, %.3f)\n", check_cam.position.x, check_cam.position.y, check_cam.position.z);
+    printf("Camera look vector: (%.3f, %.3f, %.3f)\n", check_cam.forward.x, check_cam.forward.y, check_cam.forward.z);
+  }
+
+  UpdateFlags flags = NONE;
+  while ((flags & STOP) != STOP) {
     glViewport(0, 0, app.width, app.height);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    pollInput(flags);
-    if (flags != None) updateState(flags, app);
+    pollInput(flags, input);
+    if (flags != NONE) updateState(flags, app, input);
 
     useProgram(compute_prog);
-    auto& c = ActiveCamera(app);
+    auto& c = activeCamera(app);
     glm::vec4 pos = glm::vec4(glm::vec3(c.position), 1.f);
     glBindBuffer(cam_ubo.target, cam_ubo.id);
     glBufferSubData(cam_ubo.target, 0,                   sizeof(glm::mat4), &c.view[0][0]);
@@ -65,7 +78,6 @@ int main() {
     glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2, sizeof(glm::vec4), &pos.x);
     glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2 + sizeof(glm::vec4), sizeof(GLuint), &app.width);
     glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2 + sizeof(glm::vec4) + sizeof(GLuint), sizeof(GLuint), &app.height);
-    printf("(%d, %d)\n", app.width, app.height);
 
     GLuint gx = (app.width + 16 - 1) / 16;
     GLuint gy = (app.height + 16 - 1) / 16;

@@ -10,6 +10,7 @@
 
 #include "camera.hpp"
 #include "update_flags.hpp"
+#include "input_state.hpp"
 
 using Win = std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)>;
 using GLc = std::unique_ptr<std::remove_pointer_t<SDL_GLContext>, decltype(&SDL_GL_DestroyContext)>;
@@ -45,6 +46,6 @@ struct AppConfig {
 };
 
 AppContext makeApp(AppConfig& config);
-void pollInput(UpdateFlags& flags);
-void updateState(UpdateFlags& flags, AppContext& app);
+void pollInput(UpdateFlags& flags, InputState& input);
+void updateState(UpdateFlags& flags, AppContext& app, InputState& input);
 void draw(const AppContext& app);

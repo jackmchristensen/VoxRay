@@ -52,7 +52,7 @@ AppContext makeApp(AppConfig& config) {
 }
 
 // Mask flag to signal for update
-void pollInput(UpdateFlags& flags) {
+void pollInput(UpdateFlags& flags, InputState input) {
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
