@@ -1,7 +1,6 @@
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
-#include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_video.h>
 
 #include <stdexcept>
@@ -52,24 +51,44 @@ AppContext makeApp(AppConfig& config) {
 }
 
 // Mask flag to signal for update
-void pollInput(UpdateFlags& flags, InputState input) {
+void pollInput(UpdateFlags& flags, InputState& input) {
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
       // --- Check for key presses ---
       case SDL_EVENT_KEY_DOWN:
-        switch (event.key.scancode) {
-          case SDL_SCANCODE_ESCAPE:
+        if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
             flags |= STOP;
-            break;
-          default:
-            continue;
         }
+        if (event.key.scancode == SDL_SCANCODE_LALT || event.key.scancode == SDL_SCANCODE_RALT) {
+            input.alt_held = true;
+        }
+        if (event.key.scancode == SDL_SCANCODE_LCTRL) {
+            input.ctrl_held = true;
+        }
+        break;
+      case SDL_EVENT_KEY_UP:
+        if (event.key.scancode == SDL_SCANCODE_LALT || event.key.scancode == SDL_SCANCODE_RALT) {
+            input.alt_held = false;
+        }
+        break;
+      case SDL_EVENT_MOUSE_BUTTON_DOWN:
+        if (event.button.button == 1) input.lmb_held = true;
+        if (event.button.button == 2) input.mmb_held = true;
+        if (event.button.button == 3) input.rmb_held = true;
 
-      // --- Non key press events ---
+        if (event.button.button == 3 && input.alt_held) {
+            flags |= ORBIT;
+        }
+        break;
+      case SDL_EVENT_MOUSE_BUTTON_UP:
+        if (event.button.button == 1) input.lmb_held = false;
+        if (event.button.button == 2) input.mmb_held = false;
+        if (event.button.button == 3) input.rmb_held = false;
+        break;
       case SDL_EVENT_WINDOW_RESIZED:
         flags |= RESIZE;
-        continue;
+        break;
       case SDL_EVENT_QUIT:
         flags |= STOP;
         break;
@@ -78,22 +97,26 @@ void pollInput(UpdateFlags& flags, InputState input) {
 }
 
 // Separate function from PollInputs()
-void updateState(UpdateFlags& flags, AppContext& app) {
+void updateState(UpdateFlags& flags, AppContext& app, InputState& input) {
   auto& camera = activeCamera(app);
+  bool camera_moved = false;
 
   if ((flags & RESIZE) == RESIZE) {
     SDL_GetWindowSizeInPixels(app.window.get(), &app.width, &app.height);
-
-    cam::Camera& c = activeCamera(app);
-    cam::setAspectRatio(c, float(app.width) / app.height);
-
+    cam::setAspectRatio(camera, float(app.width) / app.height);
+    camera_moved = true;
     flags &= ~RESIZE;
   }
 
   if ((flags & ORBIT) == ORBIT) {
-    cam::updateView(camera);
+    printf("Orbit activated!\n");
+    camera_moved = true;
+    flags &= ~ORBIT;
+  }
 
-    flags &= ORBIT;
+  if (camera_moved) {
+    cam::updateView(camera);
+    cam::updateProject(camera);
   }
 }
 
