@@ -5,6 +5,9 @@
 #include "graphics/gl_utils.hpp"
 
 int main() {
+  using namespace graphics;
+  using namespace cam;
+
   AppConfig config{
     "VoxRay", // title
     1280,     // width
@@ -23,27 +26,27 @@ int main() {
 
   std::string error;
   const char* compute_path = "shaders/compute.glsl";
-  graphics::Shader compute{}; graphics::Program compute_prog;
+  Shader compute{}; Program compute_prog;
   if (!compileShader(GL_COMPUTE_SHADER, compute_path, compute, &error))     { SDL_Log("%s", error.c_str()); return 1; }
   if (!linkProgram(compute, compute_prog, &error))                          { SDL_Log("%s", error.c_str()); return 1; }
   destroy(compute);
 
   const char* vertex_path = "shaders/vertex.glsl";
   const char* fragment_path = "shaders/fragment.glsl";
-  graphics::Shader vertex{}; graphics::Shader fragment{}; graphics::Program display_prog{};
+  Shader vertex{}; Shader fragment{}; Program display_prog{};
   if (!compileShader(GL_VERTEX_SHADER, vertex_path, vertex, &error))        { SDL_Log("%s", error.c_str()); return 1; }
   if (!compileShader(GL_FRAGMENT_SHADER, fragment_path, fragment, &error))  { SDL_Log("%s", error.c_str()); return 1; }
   if (!linkProgram(vertex, fragment, display_prog, &error))                 { SDL_Log("%s", error.c_str()); return 1; }
   destroy(vertex); destroy(fragment);
 
-  graphics::VertexArray vao{};
+  VertexArray vao{};
   if (!makeVao(vao)) return 1;
 
-  graphics::Buffer cam_ubo{};
+  Buffer cam_ubo{};
   if (!makeBuffer(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*2 + sizeof(glm::vec4) + sizeof(GLuint)*2, nullptr, GL_DYNAMIC_DRAW, cam_ubo)) return 1;
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, cam_ubo.id);
 
-  graphics::Texture tex{};
+  Texture tex{};
   if (!makeTexture2D(GL_TEXTURE_2D, GL_RGBA32F, app.width, app.height, tex)) return 1;
   glBindImageTexture(1, tex.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, tex.format);
 
@@ -53,10 +56,10 @@ int main() {
   // Test camera setup
   {
     auto& check_cam = activeCamera(app);
-    cam::orbit(check_cam, glm::pi<float>()/4.f, -glm::pi<float>()/8.f);
-    cam::zoomFOV(check_cam, -30.f);
-    cam::updateView(check_cam);
-    cam::updateProject(check_cam);
+    orbit(check_cam, glm::pi<float>()/4.f, -glm::pi<float>()/8.f);
+    zoomFOV(check_cam, -30.f);
+    updateView(check_cam);
+    updateProject(check_cam);
     printf("Camera position: (%.3f, %.3f, %.3f)\n", check_cam.position.x, check_cam.position.y, check_cam.position.z);
     printf("Camera look vector: (%.3f, %.3f, %.3f)\n", check_cam.forward.x, check_cam.forward.y, check_cam.forward.z);
   }
