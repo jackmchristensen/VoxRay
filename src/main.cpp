@@ -9,11 +9,11 @@ int main() {
   using namespace cam;
 
   AppConfig config{
-    "VoxRay", // title
-    1280,     // width
-    720,      // height
-    4,        // gl_major
-    3         // gl_minor
+    .title      = "VoxRay",
+    .width      = 1280,
+    .height     = 720,
+    .gl_major   = 4,
+    .gl_minor   = 3
   };
 
   AppContext app = makeApp(config);
