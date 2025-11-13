@@ -1,6 +1,8 @@
 # Build and compile files
-bin*
-build*
+bin/
+bin-*/
+build/
+build-*/
 compile_commands.json
 
 # Dotfiles
