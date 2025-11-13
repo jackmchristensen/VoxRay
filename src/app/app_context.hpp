@@ -26,11 +26,6 @@ struct AppContext {
   // --- Cameras ---
   std::vector<cam::Camera>  cameras;
   std::size_t               active = 0;
-
-  // AppContext() {
-  //   cameras.emplace_back();
-  //   active = 0;
-  // }
 };
 
 inline       cam::Camera& activeCamera(AppContext& app)       { return app.cameras[app.active]; }
