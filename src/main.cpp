@@ -3,6 +3,7 @@
 #include "app/camera.hpp"
 
 #include "graphics/gl_utils.hpp"
+#include "graphics/render_targets.hpp"
 
 int main() {
   using namespace graphics;
@@ -46,9 +47,8 @@ int main() {
   if (!makeBuffer(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*2 + sizeof(glm::vec4) + sizeof(GLuint)*2, nullptr, GL_DYNAMIC_DRAW, cam_ubo)) return 1;
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, cam_ubo.id);
 
-  Texture tex{};
-  if (!makeTexture2D(GL_TEXTURE_2D, GL_RGBA32F, app.width, app.height, tex)) return 1;
-  glBindImageTexture(1, tex.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, tex.format);
+  RenderTargets targets{};
+  if (!makeRenderTargets(app.width, app.height, targets)) return 1;
 
   // UseProgram(display_prog);
   bindVao(vao);
@@ -64,15 +64,21 @@ int main() {
     printf("Camera look vector: (%.3f, %.3f, %.3f)\n", test_cam.forward.x, test_cam.forward.y, test_cam.forward.z);
   }
 
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   UpdateFlags flags = NONE;
   while ((flags & STOP) != STOP) {
-    glViewport(0, 0, app.width, app.height);
-    glClear(GL_COLOR_BUFFER_BIT);
-
     pollInput(flags, input);
+
+    if ((flags & RESIZE) == RESIZE) {
+      resizeRenderTargets(app.width, app.height, targets);
+    }
     if (flags != NONE) updateState(flags, app, input);
 
     useProgram(compute_prog);
+    bindForCompute(targets);
+
     auto& c = activeCamera(app);
     glm::vec4 pos = glm::vec4(glm::vec3(c.position), 1.f);
     glBindBuffer(cam_ubo.target, cam_ubo.id);
@@ -82,12 +88,16 @@ int main() {
     glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2 + sizeof(glm::vec4), sizeof(GLuint), &app.width);
     glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2 + sizeof(glm::vec4) + sizeof(GLuint), sizeof(GLuint), &app.height);
 
+    glViewport(0, 0, app.width, app.height);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     GLuint gx = (app.width + 16 - 1) / 16;
     GLuint gy = (app.height + 16 - 1) / 16;
     glDispatchCompute(gx, gy, 1);
 
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
 
+    // Display pass
     useProgram(display_prog);
     glBindTextureUnit(0, tex.id);
     glDrawArrays(GL_TRIANGLES, 0, 3);

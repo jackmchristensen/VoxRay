@@ -1,4 +1,4 @@
-// gl_utils.hpp
+// graphics/gl_utils.hpp
 #pragma once
 #include <GL/glew.h>
 
@@ -20,6 +20,7 @@ bool makeBuffer(GLenum target, GLsizeiptr size, const void* data, GLenum usage, 
 bool makeVao(VertexArray& out);
 bool makeTexture2D(GLenum target, GLenum format, GLsizei width, GLsizei height, Texture& out);
 
+void destroy(const Texture& t);
 void destroy(const Shader& s);
 void destroy(const Program& p);
 void destroy(const Buffer& b);

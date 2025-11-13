@@ -98,6 +98,7 @@ bool makeTexture2D(GLenum target, GLenum format, GLsizei width, GLsizei height, 
   return true;
 }
 
+void destroy(const Texture& t)     { if (t.id) glDeleteTextures(1, &const_cast<GLuint&>(t.id)); }
 void destroy(const Shader& s)      { if (s.id) glDeleteShader(s.id); }
 void destroy(const Program& p)     { if (p.id) glDeleteProgram(p.id); }
 void destroy(const Buffer& b)      { if (b.id) glDeleteBuffers(1, &const_cast<GLuint&>(b.id)); }
