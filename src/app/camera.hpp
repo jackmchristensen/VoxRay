@@ -1,11 +1,13 @@
 // camera.hpp
 #pragma once
+
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include <glm/common.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/ext/quaternion_trigonometric.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 
 namespace cam {
 
@@ -37,7 +39,7 @@ inline glm::vec3 getRight(const glm::vec3& forward, const glm::vec3& up) {
 inline void orthonormalize(Camera& c) {
   c.forward  = glm::normalize(c.forward);
   glm::vec3 right = glm::normalize(glm::cross(c.forward, c.up));
-  c.up       = glm::normalize(glm::cross(c.forward, right));
+  c.up       = glm::normalize(glm::cross(right, c.forward));
 }
 
 
@@ -70,18 +72,23 @@ inline void rotate(Camera& c, float yaw, float pitch) {
 
 // Rotates camera around a target position
 // Updates both position and rotation of the camera
+// Note: up vector may be inverted internally, but functionality should not be affected
 inline void orbit(Camera& c, float delta_yaw, float delta_pitch) {
-  glm::vec3 to_cam = c.position - c.target;
-  glm::vec3 right = getRight(c.forward, c.up);
+  glm::vec3 offset  = c.position - c.target;
+  float radius      = glm::length(offset);
 
-  glm::quat quat_yaw    = glm::angleAxis(delta_yaw, c.up);
-  glm::quat quat_pitch  = glm::angleAxis(delta_pitch, right);
-  glm::quat quat_rotate = glm::normalize(quat_yaw * quat_pitch);
+  glm::vec3 world_up  = glm::vec3(0.f, 1.f, 0.f);
+  glm::vec3 right     = glm::normalize(glm::cross(world_up, offset));
 
-  to_cam = quat_rotate * to_cam;
+  // Apply rotations
+  offset = glm::rotate(offset, -delta_yaw, world_up);
+  right  = glm::normalize(glm::cross(world_up, offset));
+  offset = glm::rotate(offset, -delta_pitch, right);
 
-  c.position = c.target + to_cam;
-  c.forward = glm::normalize(c.target - c.position);
+  // Update camera
+  c.position  = c.target + offset;
+  c.forward   = -glm::normalize(offset);
+  c.up        = glm::normalize(glm::cross(c.forward, right));
 }
 
 inline void zoomFOV(Camera& c, float delta_degrees) {

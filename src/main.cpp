@@ -55,13 +55,16 @@ int main() {
 
   // Test camera setup
   {
+    // Camera up: (0.271, -0.924, 0.271)
     auto& test_cam = activeCamera(app);
-    orbit(test_cam, glm::pi<float>()/4.f, glm::pi<float>()/8.f);
+    orthonormalize(test_cam);
+    orbit(test_cam, -glm::pi<float>()/4.f, glm::pi<float>()/8.f);
     zoomFOV(test_cam, -30.f);
     updateView(test_cam);
     updateProject(test_cam);
     printf("Camera position: (%.3f, %.3f, %.3f)\n", test_cam.position.x, test_cam.position.y, test_cam.position.z);
-    printf("Camera look vector: (%.3f, %.3f, %.3f)\n", test_cam.forward.x, test_cam.forward.y, test_cam.forward.z);
+    printf("Camera forward: (%.3f, %.3f, %.3f)\n", test_cam.forward.x, test_cam.forward.y, test_cam.forward.z);
+    printf("Camera up: (%.3f, %.3f, %.3f)\n", test_cam.up.x, test_cam.up.y, test_cam.up.z);
   }
 
   glEnable(GL_BLEND);
@@ -99,7 +102,7 @@ int main() {
 
     // Display pass
     useProgram(display_prog);
-    glBindTextureUnit(0, tex.id);
+    bindForDisplay(targets);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     // Currently just swaps window
