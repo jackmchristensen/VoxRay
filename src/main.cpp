@@ -53,19 +53,20 @@ int main() {
   // UseProgram(display_prog);
   bindVao(vao);
 
+  // --- TODO create a makeCamera() function in app_context to initialize the camera
   // Test camera setup
-  {
-    // Camera up: (0.271, -0.924, 0.271)
+  // {
+  //   // Camera up: (0.271, -0.924, 0.271)
     auto& test_cam = activeCamera(app);
-    orthonormalize(test_cam);
-    orbit(test_cam, -glm::pi<float>()/4.f, glm::pi<float>()/8.f);
-    zoomFOV(test_cam, -30.f);
-    updateView(test_cam);
-    updateProject(test_cam);
+  //   orthonormalize(test_cam);
+  //   orbit(test_cam, -glm::pi<float>()/4.f, glm::pi<float>()/8.f);
+  //   zoomFOV(test_cam, -30.f);
+  //   updateView(test_cam);
+  //   updateProject(test_cam);
     printf("Camera position: (%.3f, %.3f, %.3f)\n", test_cam.position.x, test_cam.position.y, test_cam.position.z);
     printf("Camera forward: (%.3f, %.3f, %.3f)\n", test_cam.forward.x, test_cam.forward.y, test_cam.forward.z);
     printf("Camera up: (%.3f, %.3f, %.3f)\n", test_cam.up.x, test_cam.up.y, test_cam.up.z);
-  }
+  // }
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -74,10 +75,13 @@ int main() {
   while ((flags & STOP) != STOP) {
     pollInput(flags, input);
 
+    // TODO move resizing textures to function in the graphics directory
+    // The main function should be used to bridge the gap between the different directorys
+    // and shouldn't do any updating itself.
     if ((flags & RESIZE) == RESIZE) {
       resizeRenderTargets(app.width, app.height, targets);
     }
-    if (flags != NONE) updateState(flags, app, input);
+    if (flags) updateState(flags, app, input);
 
     useProgram(compute_prog);
     bindForCompute(targets);

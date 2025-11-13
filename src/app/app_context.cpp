@@ -47,6 +47,11 @@ AppContext makeApp(AppConfig& config) {
   app.width       = config.width;
   app.height      = config.height;
 
+  cam::Camera camera = cam::makeDefaultCamera();
+  cam::setAspectRatio(camera, float(config.width) / config.height);
+  app.cameras.push_back(camera);
+  app.active = 0;
+
   return app;
 }
 
