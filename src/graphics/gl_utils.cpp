@@ -98,10 +98,38 @@ bool makeTexture2D(GLenum target, GLenum format, GLsizei width, GLsizei height, 
   return true;
 }
 
-void destroy(const Texture& t)     { if (t.id) glDeleteTextures(1, &const_cast<GLuint&>(t.id)); }
+bool makeTexture3D(GLenum target, GLenum format, GLsizei width, GLsizei height, GLsizei depth, const void* data, Texture3D& out) {
+  GLuint id = 0;
+  glCreateTextures(target, 1, &id);
+  if (!id) return false;
+
+  glTextureStorage3D(id, 1, format, width, height, depth);
+
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+  out = Texture3D{ id, target, format };
+  return true;
+}
+
+void uploadTexture3D(const Texture3D& tex, const void* data) {
+  GLint width, height, depth;
+  glGetTextureLevelParameteriv(tex.id, 0, GL_TEXTURE_WIDTH, &width);
+  glGetTextureLevelParameteriv(tex.id, 0, GL_TEXTURE_HEIGHT, &height);
+  glGetTextureLevelParameteriv(tex.id, 0, GL_TEXTURE_DEPTH, &depth);
+
+  GLenum upload_format = (tex.format == GL_R32F) ? GL_RED : GL_RGBA;
+  glTextureSubImage3D(tex.id, 0, 0, 0, 0, width, height, depth, upload_format, GL_FLOAT, data);
+}
+
 void destroy(const Shader& s)      { if (s.id) glDeleteShader(s.id); }
 void destroy(const Program& p)     { if (p.id) glDeleteProgram(p.id); }
 void destroy(const Buffer& b)      { if (b.id) glDeleteBuffers(1, &const_cast<GLuint&>(b.id)); }
 void destroy(const VertexArray& a) { if (a.id) glDeleteVertexArrays(1, &const_cast<GLuint&>(a.id)); }
+void destroy(const Texture& t)     { if (t.id) glDeleteTextures(1, &const_cast<GLuint&>(t.id)); }
+void destroy(const Texture3D& t)   { if (t.id) glDeleteTextures(1, &const_cast<GLuint&>(t.id)); }
 
 }; // namespace graphics
