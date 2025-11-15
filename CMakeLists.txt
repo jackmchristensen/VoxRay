@@ -25,6 +25,7 @@ add_executable(VoxRay
   ${SRC_DIR}/main.cpp
   ${SRC_DIR}/graphics/gl_utils.cpp
   ${SRC_DIR}/app/app_context.cpp
+  ${SRC_DIR}/app/frame_data.cpp
   ${SRC_DIR}/preprocessing/shapes.cu
 )
 

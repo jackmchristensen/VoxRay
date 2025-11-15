@@ -39,6 +39,7 @@ AppContext makeApp(AppConfig& config) {
     SDL_Throw("SDL_GL_MakeCurrent");
   }
 
+  // Turn on VSync
   SDL_GL_SetSwapInterval(1);
 
   AppContext app{};

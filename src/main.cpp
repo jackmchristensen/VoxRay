@@ -1,6 +1,8 @@
 #include "app/update_flags.hpp"
 #include "app/app_context.hpp"
 #include "app/camera.hpp"
+#include "app/frame_data.hpp"
+
 
 #include "graphics/gl_utils.hpp"
 #include "graphics/render_targets.hpp"
