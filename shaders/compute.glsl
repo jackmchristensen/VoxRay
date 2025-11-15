@@ -16,6 +16,9 @@ layout(rgba32f, binding = 0) uniform image2D u_albedo;
 layout(rgba32f, binding = 1) uniform image2D u_depth;
 layout(rgba32f, binding = 2) uniform image2D u_normal;
 
+// Voxel texture
+uniform sampler3D u_voxel_data;
+
 vec4 drawBounds(float thickness, vec3 hit_point, vec3 box_min, vec3 box_max) {
   // Normalize position to [0,1] range within the box
   vec3 p = (hit_point - box_min) / (box_max - box_min);

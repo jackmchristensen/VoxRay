@@ -20,7 +20,7 @@ bool linkProgram(const Shader& compute, Program& out, std::string* err);
 bool makeBuffer(GLenum target, GLsizeiptr size, const void* data, GLenum usage, Buffer& out);
 bool makeVao(VertexArray& out);
 bool makeTexture2D(GLenum target, GLenum format, GLsizei width, GLsizei height, Texture& out);
-bool makeTexture3D(GLenum target, GLenum format, GLsizei width, GLsizei height, GLsizei depth, const void* data, Texture3D& out);
+bool makeTexture3D(GLenum format, GLsizei width, GLsizei height, GLsizei depth, Texture3D& out);
 
 void uploadTexture2D(const Texture& tex, const void* data);
 void uploadTexture3D(const Texture3D& tex, const void* data);

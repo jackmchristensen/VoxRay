@@ -98,9 +98,9 @@ bool makeTexture2D(GLenum target, GLenum format, GLsizei width, GLsizei height, 
   return true;
 }
 
-bool makeTexture3D(GLenum target, GLenum format, GLsizei width, GLsizei height, GLsizei depth, const void* data, Texture3D& out) {
+bool makeTexture3D(GLenum format, GLsizei width, GLsizei height, GLsizei depth, Texture3D& out) {
   GLuint id = 0;
-  glCreateTextures(target, 1, &id);
+  glCreateTextures(GL_TEXTURE_3D, 1, &id);
   if (!id) return false;
 
   glTextureStorage3D(id, 1, format, width, height, depth);
@@ -111,7 +111,7 @@ bool makeTexture3D(GLenum target, GLenum format, GLsizei width, GLsizei height, 
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-  out = Texture3D{ id, target, format };
+  out = Texture3D{ id, GL_TEXTURE_3D, format };
   return true;
 }
 

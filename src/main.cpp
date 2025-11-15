@@ -7,6 +7,9 @@
 #include "graphics/gl_utils.hpp"
 #include "graphics/render_targets.hpp"
 
+#include "preprocessing/shapes.hpp"
+#include "preprocessing/voxel_grid.hpp"
+
 int main() {
   using namespace graphics;
   using namespace cam;
@@ -49,32 +52,38 @@ int main() {
   if (!makeBuffer(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*2 + sizeof(glm::vec4) + sizeof(GLuint)*2, nullptr, GL_DYNAMIC_DRAW, cam_ubo)) return 1;
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, cam_ubo.id);
 
+  frame::FrameTimer timer = frame::makeFrameTimer();
+  frame::FrameData frame_data{};
+  frame::beginFrame(timer);
+
+  // --- Create voxel sphere ---
+  printf("Generating voxel sphere...\n");
+  preprocessing::VoxelGrid voxels(64, 64, 64);
+  preprocessing::generateSphere(voxels, 0.f, 0.f, 0.f, 20.f);
+  printf("Sphere generated!\n");
+
+  Texture3D voxel_texture;
+  makeTexture3D(GL_R32F, 64, 64, 64, voxel_texture);
+  uploadTexture3D(voxel_texture, voxels.data.data());
+
   RenderTargets targets{};
   if (!makeRenderTargets(app.width, app.height, targets)) return 1;
 
   // UseProgram(display_prog);
   bindVao(vao);
 
-  // --- TODO create a makeCamera() function in app_context to initialize the camera
-  // Test camera setup
-  // {
-  //   // Camera up: (0.271, -0.924, 0.271)
-    auto& test_cam = activeCamera(app);
-  //   orthonormalize(test_cam);
-  //   orbit(test_cam, -glm::pi<float>()/4.f, glm::pi<float>()/8.f);
-  //   zoomFOV(test_cam, -30.f);
-  //   updateView(test_cam);
-  //   updateProject(test_cam);
-    printf("Camera position: (%.3f, %.3f, %.3f)\n", test_cam.position.x, test_cam.position.y, test_cam.position.z);
-    printf("Camera forward: (%.3f, %.3f, %.3f)\n", test_cam.forward.x, test_cam.forward.y, test_cam.forward.z);
-    printf("Camera up: (%.3f, %.3f, %.3f)\n", test_cam.up.x, test_cam.up.y, test_cam.up.z);
-  // }
-
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+
+
   UpdateFlags flags = NONE;
   while ((flags & STOP) != STOP) {
+    Uint64 current_time =  SDL_GetPerformanceCounter();
+    if (frame::endFrame(timer, frame_data)) {
+      SDL_Log("Average FPS: %.1f | Average Frame Time: %.3f", frame_data.avg_fps, frame_data.avg_frame_time);
+    }
+
     pollInput(flags, input);
 
     // TODO move resizing textures to function in the graphics directory
@@ -86,6 +95,7 @@ int main() {
     if (flags) updateState(flags, app, input);
 
     useProgram(compute_prog);
+    bindTexture3D(voxel_texture, 0);
     bindForCompute(targets);
 
     auto& c = activeCamera(app);
