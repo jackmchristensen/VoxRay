@@ -115,6 +115,24 @@ bool makeTexture3D(GLenum format, GLsizei width, GLsizei height, GLsizei depth, 
   return true;
 }
 
+bool makeFramebuffer(const Texture& color_attachment, Framebuffer& out) {
+  GLuint id = 0;
+  glGenFramebuffers(1, &id);
+  if (!id) return false;
+
+  glBindFramebuffer(GL_FRAMEBUFFER, id);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_attachment.id, 0);
+
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    glDeleteFramebuffers(1, &id);
+    return false;
+  }
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  out = Framebuffer{ id };
+  return true;
+}
+
 void uploadTexture3D(const Texture3D& tex, const void* data) {
   GLint width, height, depth;
   glGetTextureLevelParameteriv(tex.id, 0, GL_TEXTURE_WIDTH, &width);
@@ -125,11 +143,12 @@ void uploadTexture3D(const Texture3D& tex, const void* data) {
   glTextureSubImage3D(tex.id, 0, 0, 0, 0, width, height, depth, upload_format, GL_FLOAT, data);
 }
 
-void destroy(const Shader& s)      { if (s.id) glDeleteShader(s.id); }
-void destroy(const Program& p)     { if (p.id) glDeleteProgram(p.id); }
-void destroy(const Buffer& b)      { if (b.id) glDeleteBuffers(1, &const_cast<GLuint&>(b.id)); }
-void destroy(const VertexArray& a) { if (a.id) glDeleteVertexArrays(1, &const_cast<GLuint&>(a.id)); }
-void destroy(const Texture& t)     { if (t.id) glDeleteTextures(1, &const_cast<GLuint&>(t.id)); }
-void destroy(const Texture3D& t)   { if (t.id) glDeleteTextures(1, &const_cast<GLuint&>(t.id)); }
+void destroy(const Shader& s)       { if (s.id) glDeleteShader(s.id); }
+void destroy(const Program& p)      { if (p.id) glDeleteProgram(p.id); }
+void destroy(const Buffer& b)       { if (b.id) glDeleteBuffers(1, &const_cast<GLuint&>(b.id)); }
+void destroy(const VertexArray& a)  { if (a.id) glDeleteVertexArrays(1, &const_cast<GLuint&>(a.id)); }
+void destroy(const Texture& t)      { if (t.id) glDeleteTextures(1, &const_cast<GLuint&>(t.id)); }
+void destroy(const Texture3D& t)    { if (t.id) glDeleteTextures(1, &const_cast<GLuint&>(t.id)); }
+void destroy(const Framebuffer& fb) { if (fb.id) glDeleteFramebuffers(1, &const_cast<GLuint&>(fb.id)); }
 
 }; // namespace graphics
