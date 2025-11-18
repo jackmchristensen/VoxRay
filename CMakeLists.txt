@@ -37,6 +37,7 @@ add_library(imgui STATIC
   ${IMGUI_DIR}/imgui_draw.cpp
   ${IMGUI_DIR}/imgui_tables.cpp
   ${IMGUI_DIR}/imgui_widgets.cpp
+  ${IMGUI_DIR}/imgui_demo.cpp
   ${IMGUI_DIR}/backends/imgui_impl_sdl3.cpp
   ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
 )
@@ -50,8 +51,10 @@ add_executable(VoxRay
   ${SRC_DIR}/graphics/gl_utils.cpp
   ${SRC_DIR}/app/app_context.cpp
   ${SRC_DIR}/app/frame_data.cpp
+  ${SRC_DIR}/ui/imgui_utils.cpp
   ${SRC_DIR}/preprocessing/shapes.cu
 )
+target_include_directories(VoxRay PRIVATE ${SRC_DIR})
 
 add_custom_command(
   TARGET VoxRay POST_BUILD

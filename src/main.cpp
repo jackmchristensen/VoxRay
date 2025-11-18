@@ -3,9 +3,15 @@
 #include "app/camera.hpp"
 #include "app/frame_data.hpp"
 
+#include "ui/imgui_utils.hpp"
+#include "ui/viewport_window.hpp"
 
 #include "graphics/gl_utils.hpp"
 #include "graphics/render_targets.hpp"
+
+#include "imgui.h"
+#include "imgui_impl_opengl3.h"
+#include "imgui_impl_sdl3.h"
 
 #include "preprocessing/shapes.hpp"
 #include "preprocessing/voxel_grid.hpp"
@@ -24,6 +30,8 @@ int main() {
 
   AppContext app = makeApp(config);
   InputState input;
+
+  ui::initUI(app.window.get(), app.gl_context.get());
 
   if (glewInit() != GLEW_OK) {
     SDL_Log("Failed to initialize GLEW");
@@ -66,6 +74,17 @@ int main() {
   makeTexture3D(GL_R32F, 64, 64, 64, voxel_texture);
   uploadTexture3D(voxel_texture, voxels.data.data());
 
+
+  // --- Viewport subwindow ---
+  Framebuffer framebuffer{}; Texture color_attach{};
+  if (!makeTexture2D(GL_TEXTURE_2D, GL_RGBA32F, app.width, app.height, color_attach)) return 1;
+  if (!makeFramebuffer(color_attach, framebuffer)) return 1;
+  ui::ViewportWindow viewport {
+    .name    = "Viewport",
+    .fbo     = framebuffer,
+    .texture = color_attach
+  };
+
   RenderTargets targets{};
   if (!makeRenderTargets(app.width, app.height, targets)) return 1;
 
@@ -75,7 +94,9 @@ int main() {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
+  useProgram(compute_prog);
+  bindTexture3D(voxel_texture, 0);
+  bindForCompute(targets);
 
   UpdateFlags flags = NONE;
   while ((flags & STOP) != STOP) {
@@ -86,17 +107,38 @@ int main() {
 
     pollInput(flags, input);
 
+    // ---DearImGui stuff
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
+    ImGui::NewFrame();
+    ImGui::DockSpaceOverViewport();
+    ui::renderViewport(viewport);
+
+    // printf("App dim: (%d, %d) | Current dim: (%d, %d)\n", app.width, app.height, current_w, current_h);
     // TODO move resizing textures to function in the graphics directory
     // The main function should be used to bridge the gap between the different directorys
     // and shouldn't do any updating itself.
-    if ((flags & RESIZE) == RESIZE) {
-      resizeRenderTargets(app.width, app.height, targets);
+    // Note: This should be called after updateState() but because updateState() resets the flags I have to
+    // put it before and use a workaround for the resizing.
+    // This is only an issue for full screening and docking/free floating the window for some reason, it doesn't affect
+    // manually resizing the window.
+    ImVec2 viewport_size = ImGui::GetContentRegionAvail();
+    if (viewport_size.x != viewport.width || viewport_size.y != viewport.height) {
+      viewport.width = viewport_size.x;
+      viewport.height = viewport_size.y;
+      int new_w, new_h;
+      SDL_GetWindowSizeInPixels(app.window.get(), &new_w, &new_h);
+      resizeRenderTargets(new_w, new_h, targets);
+      useProgram(compute_prog);
+      bindTexture3D(voxel_texture, 0);
+      bindForCompute(targets);
     }
-    if (flags) updateState(flags, app, input);
-
-    useProgram(compute_prog);
-    bindTexture3D(voxel_texture, 0);
-    bindForCompute(targets);
+    if (flags) {
+      updateState(flags, app, input);
+      useProgram(compute_prog);
+      bindTexture3D(voxel_texture, 0);
+      bindForCompute(targets);
+    }
 
     auto& c = activeCamera(app);
     glm::vec4 pos = glm::vec4(glm::vec3(c.position), 1.f);
@@ -107,6 +149,7 @@ int main() {
     glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2 + sizeof(glm::vec4), sizeof(GLuint), &app.width);
     glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2 + sizeof(glm::vec4) + sizeof(GLuint), sizeof(GLuint), &app.height);
 
+    bindFramebuffer(viewport.fbo);
     glViewport(0, 0, app.width, app.height);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -121,6 +164,13 @@ int main() {
     bindForDisplay(targets);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
+    unbindFramebuffer();
+
+    glViewport(0, 0, app.width, app.height);
+    glClear(GL_COLOR_BUFFER_BIT);
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
     // Currently just swaps window
     // Keeping this because I might add more functionality in the future
     draw(app);
@@ -129,6 +179,9 @@ int main() {
   destroy(vao);
   destroy(compute_prog);
   destroy(display_prog);
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplSDL3_Shutdown();
+  ImGui::DestroyContext();
   SDL_GL_DestroyContext(app.gl_context.get());
   SDL_DestroyWindow(app.window.get());
   SDL_Quit();
