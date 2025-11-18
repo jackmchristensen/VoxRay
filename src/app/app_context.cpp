@@ -3,6 +3,8 @@
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_video.h>
 
+#include <imgui_impl_sdl3.h>
+
 #include <stdexcept>
 
 #include "app_context.hpp"
@@ -66,6 +68,8 @@ void pollInput(UpdateFlags& flags, InputState& input) {
 
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
+    ImGui_ImplSDL3_ProcessEvent(&event);
+
     switch (event.type) {
       case SDL_EVENT_KEY_DOWN:
         if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
@@ -101,6 +105,15 @@ void pollInput(UpdateFlags& flags, InputState& input) {
         }
         break;
       case SDL_EVENT_WINDOW_RESIZED:
+        flags |= RESIZE;
+        break;
+      case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+        flags |= RESIZE;
+        break;
+      case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
+        flags |= RESIZE;
+        break;
+      case SDL_EVENT_WINDOW_MAXIMIZED:
         flags |= RESIZE;
         break;
       case SDL_EVENT_QUIT:
