@@ -100,18 +100,17 @@ int main() {
 
   UpdateFlags flags = NONE;
   while ((flags & STOP) != STOP) {
-    Uint64 current_time =  SDL_GetPerformanceCounter();
-    if (frame::endFrame(timer, frame_data)) {
-      SDL_Log("Average FPS: %.1f | Average Frame Time: %.3f", frame_data.avg_fps, frame_data.avg_frame_time);
-    }
+    // Gather frame rate data
+    frame::endFrame(timer, frame_data);
 
     pollInput(flags, input);
 
-    // ---DearImGui stuff
+    // --- DearImGui stuff ---
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
     ImGui::DockSpaceOverViewport();
+    ui::renderUI(frame_data);
     ui::renderViewport(viewport);
 
     // printf("App dim: (%d, %d) | Current dim: (%d, %d)\n", app.width, app.height, current_w, current_h);

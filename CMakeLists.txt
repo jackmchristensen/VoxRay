@@ -52,6 +52,7 @@ add_executable(VoxRay
   ${SRC_DIR}/app/app_context.cpp
   ${SRC_DIR}/app/frame_data.cpp
   ${SRC_DIR}/ui/imgui_utils.cpp
+  ${SRC_DIR}/ui/windows.cpp
   ${SRC_DIR}/preprocessing/shapes.cu
 )
 target_include_directories(VoxRay PRIVATE ${SRC_DIR})

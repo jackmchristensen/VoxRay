@@ -4,6 +4,7 @@
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_opengl3.h"
 
+#include "windows.hpp"
 #include "imgui_utils.hpp"
 
 namespace ui {
@@ -30,8 +31,9 @@ namespace ui {
     ImGui::End();
   }
 
-  void renderUI() {
-
+  void renderUI(const frame::FrameData& frame_data) {
+    renderDiagnostics(frame_data);
+    renderControls();
   }
 
 } // namespace ui
