@@ -113,12 +113,23 @@ int main() {
     ui::renderViewport(viewport, flags);
     ui::renderUI(frame_data);
 
+    // Call compute shader only if needed
     if (flags) {
       updateState(flags, app, input, viewport);
       updateGraphicsState(flags, targets, viewport);
+
       useProgram(compute_prog);
       bindTexture3D(voxel_texture, 0);
       bindForCompute(targets);
+
+      GLuint gx = (viewport.width + 16 - 1) / 16;
+      GLuint gy = (viewport.height + 16 - 1) / 16;
+      glDispatchCompute(gx, gy, 1);
+
+      glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
+
+      useProgram(display_prog);
+      bindForDisplay(targets);
     }
 
     // TODO move out of main loop
@@ -128,6 +139,7 @@ int main() {
     glBufferSubData(cam_ubo.target, 0,                   sizeof(glm::mat4), &c.view[0][0]);
     glBufferSubData(cam_ubo.target, sizeof(glm::mat4),   sizeof(glm::mat4), &c.proj[0][0]);
     glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2, sizeof(glm::vec4), &pos.x);
+    // TODO pass viewport/render sizes in different ubo to keep things organized
     glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2 + sizeof(glm::vec4), sizeof(GLuint), &viewport.width);
     glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2 + sizeof(glm::vec4) + sizeof(GLuint), sizeof(GLuint), &viewport.height);
 
@@ -135,21 +147,10 @@ int main() {
     glViewport(0, 0, viewport.width, viewport.height);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    GLuint gx = (viewport.width + 16 - 1) / 16;
-    GLuint gy = (viewport.height + 16 - 1) / 16;
-    glDispatchCompute(gx, gy, 1);
-
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
-
-    // --- Display pass ---
-    useProgram(display_prog);
-    bindForDisplay(targets);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     unbindFramebuffer();
 
-    glViewport(0, 0, viewport.width, viewport.height);
-    glClear(GL_COLOR_BUFFER_BIT);
     ImGui::Render();
     // Multi viewports don't work on Wayland which I'm using while writing this.
     // Currently doesn't break anything and might work on other machines so I'm just leaving it for now.
