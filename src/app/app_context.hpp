@@ -22,6 +22,7 @@ struct AppContext {
   GLc gl_context{nullptr, SDL_GL_DestroyContext};
   int width{};
   int height{};
+  float dpi_scalar = 1.667f;
 
   // --- Cameras ---
   std::vector<cam::Camera>  cameras;

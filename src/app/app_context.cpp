@@ -24,7 +24,10 @@ AppContext makeApp(AppConfig& config) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-  SDL_Window* window = SDL_CreateWindow(config.title, config.width, config.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+  SDL_WindowFlags window_flags = SDL_WINDOW_OPENGL |
+                                 SDL_WINDOW_RESIZABLE |
+                                 SDL_WINDOW_HIGH_PIXEL_DENSITY;
+  SDL_Window* window = SDL_CreateWindow(config.title, config.width, config.height, window_flags);
   if (!window) SDL_Throw("SDL_CreateWindow");
 
   SDL_GLContext context = SDL_GL_CreateContext(window);
@@ -49,6 +52,9 @@ AppContext makeApp(AppConfig& config) {
   app.gl_context  = GLc { context, SDL_GL_DestroyContext };
   app.width       = config.width;
   app.height      = config.height;
+  app.dpi_scalar  = SDL_GetWindowDisplayScale(window);
+
+  printf("DPI Scale: %.3f\n", app.dpi_scalar);
 
   cam::Camera camera = cam::makeDefaultCamera();
   cam::setAspectRatio(camera, float(config.width) / config.height);
