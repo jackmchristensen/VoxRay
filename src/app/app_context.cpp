@@ -136,14 +136,14 @@ void updateState(UpdateFlags& flags, AppContext& app, InputState& input, const u
   auto& camera = activeCamera(app);
   bool camera_moved = false;
 
-  if ((flags & RESIZE) == RESIZE) {
+  if (flags & RESIZE) {
     SDL_GetWindowSizeInPixels(app.window.get(), &app.width, &app.height);
     cam::setAspectRatio(camera, float(viewport.width) / viewport.height);
     camera_moved = true;
     flags &= ~RESIZE;
   }
 
-  if ((flags & ORBIT) == ORBIT) {
+  if (flags & ORBIT) {
     float yaw = input.mouse_dx * 0.01;
     float pitch = input.mouse_dy * 0.01;
     cam::orbit(camera, yaw, pitch);
