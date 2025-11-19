@@ -56,8 +56,6 @@ AppContext makeApp(AppConfig& config) {
   app.height      = config.height;
   app.dpi_scalar  = SDL_GetWindowDisplayScale(window);
 
-  printf("DPI Scale: %.3f\n", app.dpi_scalar);
-
   cam::Camera camera = cam::makeDefaultCamera();
   cam::setAspectRatio(camera, float(config.width) / config.height);
   app.cameras.push_back(camera);

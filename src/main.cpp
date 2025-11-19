@@ -66,10 +66,8 @@ int main() {
   frame::beginFrame(timer);
 
   // --- Create voxel sphere ---
-  printf("Generating voxel sphere...\n");
   preprocessing::VoxelGrid voxels(64, 64, 64);
   preprocessing::generateSphere(voxels, 0.f, 0.f, 0.f, 20.f);
-  printf("Sphere generated!\n");
 
   Texture3D voxel_texture;
   makeTexture3D(GL_R32F, 64, 64, 64, voxel_texture);
