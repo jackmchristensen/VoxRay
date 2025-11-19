@@ -3,6 +3,7 @@
 #include "app/camera.hpp"
 #include "app/frame_data.hpp"
 
+#include "graphics/update_graphics.hpp"
 #include "ui/imgui_utils.hpp"
 #include "ui/viewport_window.hpp"
 
@@ -111,20 +112,12 @@ int main() {
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
     ImGui::DockSpaceOverViewport();
-    ui::renderViewport(viewport);
+    ui::renderViewport(viewport, flags);
     ui::renderUI(frame_data);
 
-    // TODO move this out of main loop
-    // Currently verbose and makes the main loop hard to read
-    if (true) {
-      resizeRenderTargets(viewport.width, viewport.height, targets);
-      useProgram(compute_prog);
-      bindTexture3D(voxel_texture, 0);
-      bindForCompute(targets);
-    }
-    flags |= RESIZE;
     if (flags) {
       updateState(flags, app, input, viewport);
+      updateGraphicsState(flags, targets, viewport);
       useProgram(compute_prog);
       bindTexture3D(voxel_texture, 0);
       bindForCompute(targets);

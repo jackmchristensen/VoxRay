@@ -4,6 +4,8 @@
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_opengl3.h"
 
+#include "app/update_flags.hpp"
+
 #include "graphics/gl_utils.hpp"
 
 #include "windows.hpp"
@@ -32,7 +34,7 @@ namespace ui {
     ImGui_ImplOpenGL3_Init();
   }
 
-  void renderViewport(ViewportWindow& viewport) {
+  void renderViewport(ViewportWindow& viewport, UpdateFlags& flags) {
     ImGui::Begin(viewport.name.c_str());
 
     ImVec2 size = ImGui::GetContentRegionAvail();
@@ -41,6 +43,7 @@ namespace ui {
       viewport.height = size.y;
 
       viewport.update_framebuffer = true;
+      flags |= VIEWPORT_RESIZE | RESIZE;
     }
 
     if (viewport.update_framebuffer) {

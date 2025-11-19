@@ -4,12 +4,13 @@
 
 // UpdateFlags serves as a human-readable way to mark what needs to be updated if the program detects a user input
 enum UpdateFlags : uint8_t {
-  NONE    = 0,
-  STOP    = 1 << 0,
-  RENDER  = 1 << 1,
-  ZOOM    = 1 << 2,
-  RESIZE  = 1 << 3,
-  ORBIT   = 1 << 4
+  NONE            = 0,
+  STOP            = 1 << 0,
+  RENDER          = 1 << 1,
+  ZOOM            = 1 << 2,
+  RESIZE          = 1 << 3,
+  ORBIT           = 1 << 4,
+  VIEWPORT_RESIZE = 1 << 5
 };
 
 inline UpdateFlags operator|(UpdateFlags a, UpdateFlags b) {
