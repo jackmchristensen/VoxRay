@@ -3,12 +3,12 @@
 #include "app/camera.hpp"
 #include "app/frame_data.hpp"
 
-#include "graphics/update_graphics.hpp"
 #include "ui/imgui_utils.hpp"
 #include "ui/viewport_window.hpp"
 
 #include "graphics/gl_utils.hpp"
 #include "graphics/render_targets.hpp"
+#include "graphics/update_graphics.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
