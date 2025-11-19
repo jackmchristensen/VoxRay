@@ -77,8 +77,6 @@ int main() {
 
   // --- Viewport subwindow ---
   Framebuffer framebuffer{}; Texture color_attach{};
-  if (!makeTexture2D(GL_TEXTURE_2D, GL_RGBA32F, app.width, app.height, color_attach)) return 1;
-  if (!makeFramebuffer(color_attach, framebuffer)) return 1;
   ui::ViewportWindow viewport {
     .name    = "Viewport",
     .fbo     = framebuffer,
@@ -86,7 +84,7 @@ int main() {
   };
 
   RenderTargets targets{};
-  if (!makeRenderTargets(app.width, app.height, targets)) return 1;
+  if (!makeRenderTargets(viewport.width, viewport.height, targets)) return 1;
 
   // UseProgram(display_prog);
   bindVao(vao);
@@ -101,7 +99,10 @@ int main() {
   UpdateFlags flags = NONE;
   while ((flags & STOP) != STOP) {
     // Gather frame rate data
-    frame::endFrame(timer, frame_data);
+    // Can also be used to write to terminal once per second
+    if (frame::endFrame(timer, frame_data)) {
+      // printf("(%d, %d)\n", targets.width, targets.height);
+    }
 
     pollInput(flags, input);
 
@@ -110,64 +111,59 @@ int main() {
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
     ImGui::DockSpaceOverViewport();
-    ui::renderUI(frame_data);
     ui::renderViewport(viewport);
+    ui::renderUI(frame_data);
 
-    // printf("App dim: (%d, %d) | Current dim: (%d, %d)\n", app.width, app.height, current_w, current_h);
-    // TODO move resizing textures to function in the graphics directory
-    // The main function should be used to bridge the gap between the different directorys
-    // and shouldn't do any updating itself.
-    // Note: This should be called after updateState() but because updateState() resets the flags I have to
-    // put it before and use a workaround for the resizing.
-    // This is only an issue for full screening and docking/free floating the window for some reason, it doesn't affect
-    // manually resizing the window.
-    ImVec2 viewport_size = ImGui::GetContentRegionAvail();
-    if (viewport_size.x != viewport.width || viewport_size.y != viewport.height) {
-      viewport.width = viewport_size.x;
-      viewport.height = viewport_size.y;
-      int new_w, new_h;
-      SDL_GetWindowSizeInPixels(app.window.get(), &new_w, &new_h);
-      resizeRenderTargets(new_w, new_h, targets);
+    // TODO move this out of main loop
+    // Currently verbose and makes the main loop hard to read
+    if (true) {
+      resizeRenderTargets(viewport.width, viewport.height, targets);
       useProgram(compute_prog);
       bindTexture3D(voxel_texture, 0);
       bindForCompute(targets);
     }
+    flags |= RESIZE;
     if (flags) {
-      updateState(flags, app, input);
+      updateState(flags, app, input, viewport);
       useProgram(compute_prog);
       bindTexture3D(voxel_texture, 0);
       bindForCompute(targets);
     }
 
+    // TODO move out of main loop
     auto& c = activeCamera(app);
     glm::vec4 pos = glm::vec4(glm::vec3(c.position), 1.f);
     glBindBuffer(cam_ubo.target, cam_ubo.id);
     glBufferSubData(cam_ubo.target, 0,                   sizeof(glm::mat4), &c.view[0][0]);
     glBufferSubData(cam_ubo.target, sizeof(glm::mat4),   sizeof(glm::mat4), &c.proj[0][0]);
     glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2, sizeof(glm::vec4), &pos.x);
-    glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2 + sizeof(glm::vec4), sizeof(GLuint), &app.width);
-    glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2 + sizeof(glm::vec4) + sizeof(GLuint), sizeof(GLuint), &app.height);
+    glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2 + sizeof(glm::vec4), sizeof(GLuint), &viewport.width);
+    glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2 + sizeof(glm::vec4) + sizeof(GLuint), sizeof(GLuint), &viewport.height);
 
     bindFramebuffer(viewport.fbo);
-    glViewport(0, 0, app.width, app.height);
+    glViewport(0, 0, viewport.width, viewport.height);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    GLuint gx = (app.width + 16 - 1) / 16;
-    GLuint gy = (app.height + 16 - 1) / 16;
+    GLuint gx = (viewport.width + 16 - 1) / 16;
+    GLuint gy = (viewport.height + 16 - 1) / 16;
     glDispatchCompute(gx, gy, 1);
 
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
 
-    // Display pass
+    // --- Display pass ---
     useProgram(display_prog);
     bindForDisplay(targets);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     unbindFramebuffer();
 
-    glViewport(0, 0, app.width, app.height);
+    glViewport(0, 0, viewport.width, viewport.height);
     glClear(GL_COLOR_BUFFER_BIT);
     ImGui::Render();
+    // Multi viewports don't work on Wayland which I'm using while writing this.
+    // Currently doesn't break anything and might work on other machines so I'm just leaving it for now.
+    ImGui::UpdatePlatformWindows();
+    ImGui::RenderPlatformWindowsDefault();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     // Currently just swaps window

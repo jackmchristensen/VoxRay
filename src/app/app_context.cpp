@@ -7,6 +7,8 @@
 
 #include <stdexcept>
 
+#include "ui/viewport_window.hpp"
+
 #include "app_context.hpp"
 #include "camera.hpp"
 #include "update_flags.hpp"
@@ -130,13 +132,13 @@ void pollInput(UpdateFlags& flags, InputState& input) {
 }
 
 // Separate function from PollInputs()
-void updateState(UpdateFlags& flags, AppContext& app, InputState& input) {
+void updateState(UpdateFlags& flags, AppContext& app, InputState& input, const ui::ViewportWindow& viewport) {
   auto& camera = activeCamera(app);
   bool camera_moved = false;
 
   if ((flags & RESIZE) == RESIZE) {
     SDL_GetWindowSizeInPixels(app.window.get(), &app.width, &app.height);
-    cam::setAspectRatio(camera, float(app.width) / app.height);
+    cam::setAspectRatio(camera, float(viewport.width) / viewport.height);
     camera_moved = true;
     flags &= ~RESIZE;
   }

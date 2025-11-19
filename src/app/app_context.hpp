@@ -8,6 +8,8 @@
 #include <type_traits>
 #include <vector>
 
+#include "ui/viewport_window.hpp"
+
 #include "camera.hpp"
 #include "update_flags.hpp"
 #include "input_state.hpp"
@@ -43,5 +45,5 @@ struct AppConfig {
 
 AppContext makeApp(AppConfig& config);
 void pollInput(UpdateFlags& flags, InputState& input);
-void updateState(UpdateFlags& flags, AppContext& app, InputState& input);
+void updateState(UpdateFlags& flags, AppContext& app, InputState& input, const ui::ViewportWindow& viewport);
 void draw(const AppContext& app);

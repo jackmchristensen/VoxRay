@@ -9,6 +9,7 @@ namespace ui {
   struct ViewportWindow {
     std::string name;
     bool open = true;
+    bool update_framebuffer = true;
 
     graphics::Framebuffer fbo;
     graphics::Texture texture;
