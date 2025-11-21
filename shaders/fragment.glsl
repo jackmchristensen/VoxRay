@@ -16,7 +16,7 @@ in vec2 v_uv;
 out vec4 fragColor;
 
 void main() {
-  vec4 tex = texture(u_normal, v_uv);
+  vec4 tex = texture(u_albedo, v_uv);
   vec3 background = vec3(0.1, 0.1, 0.15);
 
   fragColor = vec4(mix(background, tex.rgb, tex.a), 1.0);

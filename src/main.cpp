@@ -66,11 +66,12 @@ int main() {
   frame::beginFrame(timer);
 
   // --- Create voxel sphere ---
-  preprocessing::VoxelGrid voxels(64, 64, 64);
-  preprocessing::generateSphere(voxels, 0.f, 0.f, 0.f, 20.f);
+  int grid_res = 512;
+  preprocessing::VoxelGrid voxels(grid_res, grid_res, grid_res);
+  preprocessing::generateSphere(voxels, float(grid_res) / 2.f, float(grid_res) / 2.f, float(grid_res) / 2.f, float(grid_res) / 2.f);
 
   Texture3D voxel_texture;
-  makeTexture3D(GL_R32F, 64, 64, 64, voxel_texture);
+  makeTexture3D(GL_R32F, grid_res, grid_res, grid_res, voxel_texture);
   uploadTexture3D(voxel_texture, voxels.data.data());
 
 

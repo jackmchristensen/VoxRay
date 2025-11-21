@@ -17,7 +17,7 @@ layout(rgba32f, binding = 1) uniform image2D u_depth;
 layout(rgba32f, binding = 2) uniform image2D u_normal;
 
 // Voxel texture
-uniform sampler3D u_voxel_data;
+layout(binding = 0) uniform sampler3D u_voxel_data;
 
 vec4 drawBounds(float thickness, vec3 hit_point, vec3 box_min, vec3 box_max) {
   // Normalize position to [0,1] range within the box
@@ -69,25 +69,44 @@ void rayMarch(vec3 ray_origin, vec3 ray_dir, out vec4 albedo, out vec4 depth, ou
     return;
   }
 
-  // Color position
-  float t = intersection.x > 0.0 ? intersection.x : intersection.y;
-  vec3 hit_point = ray_origin + ray_dir * t;
+  float t = max(intersection.x, 0.0);
+  float t_end = intersection.y;
+  float step_size = 0.01;
+  int max_steps = 500;
 
-  vec4 wireframe = drawBounds(0.01, hit_point, box_min, box_max);
-  albedo = mix(vec4(1.0), wireframe.rgba, wireframe.a);
-  depth = vec4(vec3(length(hit_point - ray_origin) / 5.0), 1.0);
+  vec4 accumulated_color = vec4(0.0);
+  vec3 first_hit_normal = vec3(0.0);
+  float first_hit_depth = 0.0;
+  bool hit = false;
 
-  float eps = 0.001;
-  vec3 world_normal = vec3(0.0);
-  if (abs(hit_point.x - box_min.x) < eps) world_normal.r = -1.0;
-  else if (abs(hit_point.x - box_max.x) < eps) world_normal.r = 1.0;
-  else if (abs(hit_point.y - box_min.y) < eps) world_normal.g = -1.0;
-  else if (abs(hit_point.y - box_max.y) < eps) world_normal.g = 1.0;
-  else if (abs(hit_point.z - box_min.z) < eps) world_normal.b = -1.0;
-  else if (abs(hit_point.z - box_max.z) < eps) world_normal.b = 1.0;
+  for (int step = 0; step < max_steps && t < t_end; step++) {
+    if (accumulated_color.a >= 0.95) break;
 
-  vec3 encoded_normal = max(vec3(0.0), world_normal);
-  normal = vec4(encoded_normal, 1.0);
+    vec3 world_pos = ray_origin + ray_dir * t;
+    vec3 tex_pos = (world_pos - box_min) / (box_max - box_min);
+
+    float density = texture(u_voxel_data, tex_pos).r;
+
+    if (density > 0.01) {
+      if (!hit) {
+        first_hit_normal = vec3(0.5, 0.5, 1.0); // Placeholder
+        first_hit_depth = t;
+        hit = true;
+      }
+
+      vec3 sample_color = vec3(1.0, 0.8, 0.6) * density;
+      float sample_alpha = clamp(density * step_size * 50.0, 0.0, 1.0);
+
+      accumulated_color.rgb += sample_color * sample_alpha * (1.0 - accumulated_color.a);
+      accumulated_color.a += sample_alpha * (1.0 - accumulated_color.a);
+    }
+
+    t += step_size;
+  }
+
+  albedo = accumulated_color;
+  depth = hit ? vec4(vec3(first_hit_depth / 5.0), 1.0) : vec4(0.0);
+  normal = hit ? vec4(first_hit_normal, 1.0) : vec4(0.0);
 }
 
 void main() {
