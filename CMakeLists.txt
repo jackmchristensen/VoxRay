@@ -78,6 +78,17 @@ target_link_libraries(VoxRay PRIVATE SDL3::SDL3)
 find_package(CUDAToolkit REQUIRED)
 target_link_libraries(VoxRay PRIVATE CUDA::cudart)
 
+find_package(ITK REQUIRED COMPONENTS
+  ITKCommon
+  ITKIOImageBase
+  ITKIOGDCM
+)
+target_link_libraries(VoxRay PRIVATE
+  ITKCommon
+  ITKIOImageBase
+  ITKIOGDCM
+)
+
 target_link_libraries(VoxRay PRIVATE imgui)
 target_link_libraries(imgui PUBLIC SDL3::SDL3 OpenGL::GL)
 
