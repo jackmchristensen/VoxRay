@@ -47,12 +47,13 @@ inline void orthonormalize(Camera& c) {
 
 inline void translateWorld(Camera& c, const glm::vec3& delta) {
   c.position += delta;
-  c.forward += delta;
+  c.target += delta;
 }
 
 inline void translateLocal(Camera& c, const glm::vec3& delta) {
   glm::vec3 right = getRight(c.forward, c.up);
   c.position += right * delta.x + c.up * delta.y + c.forward * delta.z;
+  c.target += right * delta.x + c.up * delta.y + c.forward * delta.z;
 }
 
 // Rotates along pitch and yaw
