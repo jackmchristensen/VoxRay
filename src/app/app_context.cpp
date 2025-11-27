@@ -110,6 +110,11 @@ void pollInput(UpdateFlags& flags, InputState& input) {
             flags |= ORBIT;
         }
         break;
+      case SDL_EVENT_MOUSE_WHEEL:
+        input.scroll_dx += event.wheel.x;
+        input.scroll_dy += event.wheel.y;
+        flags |= ZOOM;
+        break;
       case SDL_EVENT_WINDOW_RESIZED:
         flags |= RESIZE;
         break;
@@ -147,6 +152,12 @@ void updateState(UpdateFlags& flags, AppContext& app, InputState& input, const u
     cam::orbit(camera, yaw, pitch);
     camera_moved = true;
     flags &= ~ORBIT;
+  }
+
+  if (flags & ZOOM) {
+    cam::dolly(camera, input.scroll_dy * 0.1f);
+    camera_moved = true;
+    flags &= ~ZOOM;
   }
 
   if (camera_moved) {
