@@ -84,13 +84,22 @@ void pollInput(UpdateFlags& flags, InputState& input) {
         if (event.key.scancode == SDL_SCANCODE_LALT || event.key.scancode == SDL_SCANCODE_RALT) {
             input.alt_held = true;
         }
-        if (event.key.scancode == SDL_SCANCODE_LCTRL) {
+        if (event.key.scancode == SDL_SCANCODE_LCTRL || event.key.scancode == SDL_SCANCODE_RCTRL) {
             input.ctrl_held = true;
+        }
+        if (event.key.scancode == SDL_SCANCODE_LSHIFT || event.key.scancode == SDL_SCANCODE_RSHIFT) {
+            input.shift_held = true;
         }
         break;
       case SDL_EVENT_KEY_UP:
         if (event.key.scancode == SDL_SCANCODE_LALT || event.key.scancode == SDL_SCANCODE_RALT) {
             input.alt_held = false;
+        }
+        if (event.key.scancode == SDL_SCANCODE_LCTRL || event.key.scancode == SDL_SCANCODE_RCTRL) {
+            input.ctrl_held = false;
+        }
+        if (event.key.scancode == SDL_SCANCODE_LSHIFT || event.key.scancode == SDL_SCANCODE_RSHIFT) {
+            input.shift_held = false;
         }
         break;
       case SDL_EVENT_MOUSE_BUTTON_DOWN:
@@ -113,7 +122,14 @@ void pollInput(UpdateFlags& flags, InputState& input) {
       case SDL_EVENT_MOUSE_WHEEL:
         input.scroll_dx += event.wheel.x;
         input.scroll_dy += event.wheel.y;
-        flags |= ZOOM;
+
+        if (input.shift_held) {
+          flags |= PAN;
+        } else if (input.ctrl_held) {
+          flags |= ZOOM;
+        } else {
+          flags |= ORBIT;
+        }
         break;
       case SDL_EVENT_WINDOW_RESIZED:
         flags |= RESIZE;
@@ -147,8 +163,8 @@ void updateState(UpdateFlags& flags, AppContext& app, InputState& input, const u
   }
 
   if (flags & ORBIT) {
-    float yaw = input.mouse_dx * 0.01;
-    float pitch = input.mouse_dy * 0.01;
+    float yaw = input.scroll_dx * 0.1f;
+    float pitch = input.scroll_dy * 0.1f;
     cam::orbit(camera, yaw, pitch);
     camera_moved = true;
     flags &= ~ORBIT;
@@ -158,6 +174,13 @@ void updateState(UpdateFlags& flags, AppContext& app, InputState& input, const u
     cam::dolly(camera, input.scroll_dy * 0.1f);
     camera_moved = true;
     flags &= ~ZOOM;
+  }
+
+  if (flags & PAN) {
+    float scalar = 0.1f;
+    cam::translateLocal(camera, glm::vec3(input.scroll_dx, -input.scroll_dy, 0.f) * scalar);
+    camera_moved = true;
+    flags &= ~PAN;
   }
 
   if (camera_moved) {

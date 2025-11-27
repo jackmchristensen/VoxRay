@@ -47,6 +47,7 @@ inline void orthonormalize(Camera& c) {
 
 inline void translateWorld(Camera& c, const glm::vec3& delta) {
   c.position += delta;
+  c.forward += delta;
 }
 
 inline void translateLocal(Camera& c, const glm::vec3& delta) {

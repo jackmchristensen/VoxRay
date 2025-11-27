@@ -10,7 +10,8 @@ enum UpdateFlags : uint8_t {
   ZOOM            = 1 << 2,
   RESIZE          = 1 << 3,
   ORBIT           = 1 << 4,
-  VIEWPORT_RESIZE = 1 << 5
+  VIEWPORT_RESIZE = 1 << 5,
+  PAN             = 1 << 6
 };
 
 inline UpdateFlags operator|(UpdateFlags a, UpdateFlags b) {
