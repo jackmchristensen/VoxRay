@@ -178,7 +178,7 @@ void updateState(UpdateFlags& flags, AppContext& app, InputState& input, const u
 
   if (flags & PAN) {
     float scalar = 0.1f;
-    cam::translateLocal(camera, glm::vec3(input.scroll_dx, -input.scroll_dy, 0.f) * scalar);
+    cam::translateLocal(camera, glm::vec3(-input.scroll_dx, -input.scroll_dy, 0.f) * scalar);
     camera_moved = true;
     flags &= ~PAN;
   }
