@@ -9,6 +9,9 @@ layout(std140, binding = 0) uniform camera_block {
   vec4 u_cam;
   int u_width;
   int u_height;
+  float u_win_center;
+  float u_win_width;
+  vec4 u_volume_scale;
 };
 
 // Render passes
@@ -55,9 +58,8 @@ vec2 intersectAABB(vec3 ray_origin, vec3 ray_dir, vec3 box_min, vec3 box_max) {
 }
 
 void rayMarch(vec3 ray_origin, vec3 ray_dir, out vec4 albedo, out vec4 depth, out vec4 normal) {
-  // Test cube of size 2.0 in center of world (from -1 to 1)
-  vec3 box_min = vec3(-1.0);
-  vec3 box_max = vec3(1.0);
+  vec3 box_max = u_volume_scale.xyz;
+  vec3 box_min = -box_max;
 
   vec2 intersection = intersectAABB(ray_origin, ray_dir, box_min, box_max);
   // Check for miss
@@ -85,7 +87,12 @@ void rayMarch(vec3 ray_origin, vec3 ray_dir, out vec4 albedo, out vec4 depth, ou
     vec3 world_pos = ray_origin + ray_dir * t;
     vec3 tex_pos = (world_pos - box_min) / (box_max - box_min);
 
-    float density = texture(u_voxel_data, tex_pos).r;
+    float raw = texture(u_voxel_data, tex_pos).r;
+
+    // Apply HU windowing: remap so that win_center is mid-gray
+    // Clamp values so air is not shown
+    float half_width = u_win_width * 0.5;
+    float density = clamp((raw - (u_win_center - half_width)) / u_win_width, 0.0, 1.0);
 
     if (density > 0.01) {
       if (!hit) {

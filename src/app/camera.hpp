@@ -127,7 +127,7 @@ inline glm::mat4 viewProject(const Camera& c) {
 inline Camera makeCamera(
   const glm::vec3& position,
   const glm::vec3& target,
-  float fov_deg   = 30.f,
+  float fov_deg   = 12.f,
   float aspect    = 16.f/9.f,
   float near_clip = 0.1f,
   float far_clip  = 1000.f
@@ -142,7 +142,7 @@ inline Camera makeCamera(
   };
 
   c.forward = glm::normalize(target - position);
-  // Note: at some point, the world got flipped turned upside down. Not sure where it happened
+  // NOTE: at some point, the world got flipped turned upside down. Not sure where it happened
   // but everything seems to work fine, just inverted.
   c.up = glm::vec3(0.f, -1.f, 0.f);
   orthonormalize(c);

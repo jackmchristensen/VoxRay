@@ -18,6 +18,8 @@
 #include "preprocessing/voxel_grid.hpp"
 #include "preprocessing/dicom_utils.hpp"
 
+#include <algorithm>
+
 int main() {
   using namespace graphics;
   using namespace cam;
@@ -68,7 +70,7 @@ int main() {
   if (!makeVao(vao)) return 1;
 
   Buffer cam_ubo{};
-  if (!makeBuffer(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*2 + sizeof(glm::vec4) + sizeof(GLuint)*2, nullptr, GL_DYNAMIC_DRAW, cam_ubo)) return 1;
+  if (!makeBuffer(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*2 + sizeof(glm::vec4)*2 + sizeof(GLuint)*2 + sizeof(float)*2, nullptr, GL_DYNAMIC_DRAW, cam_ubo)) return 1;
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, cam_ubo.id);
 
   frame::FrameTimer timer = frame::makeFrameTimer();
@@ -154,13 +156,29 @@ int main() {
     // TODO move out of main loop
     auto& c = activeCamera(app);
     glm::vec4 pos = glm::vec4(glm::vec3(c.position), 1.f);
+
+    float max_dim = float(std::max({dicom_meta.width, dicom_meta.height, dicom_meta.depth}));
+    glm::vec4 volume_scale = glm::vec4(
+      dicom_meta.width  * dicom_meta.spacing_x / max_dim,
+      dicom_meta.height * dicom_meta.spacing_y / max_dim,
+      dicom_meta.depth  * dicom_meta.spacing_z / max_dim,
+      0.f
+    );
+
+
+    float win_center = 0.3f;
+    float win_width  = 0.4f;
+
+    GLuint offset = 0;
     glBindBuffer(cam_ubo.target, cam_ubo.id);
-    glBufferSubData(cam_ubo.target, 0,                   sizeof(glm::mat4), &c.view[0][0]);
-    glBufferSubData(cam_ubo.target, sizeof(glm::mat4),   sizeof(glm::mat4), &c.proj[0][0]);
-    glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2, sizeof(glm::vec4), &pos.x);
-    // TODO pass viewport/render sizes in different ubo to keep things organized
-    glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2 + sizeof(glm::vec4), sizeof(GLuint), &viewport.width);
-    glBufferSubData(cam_ubo.target, sizeof(glm::mat4)*2 + sizeof(glm::vec4) + sizeof(GLuint), sizeof(GLuint), &viewport.height);
+    glBufferSubData(cam_ubo.target, offset, sizeof(glm::mat4), &c.view[0][0]);         offset += sizeof(glm::mat4);
+    glBufferSubData(cam_ubo.target, offset, sizeof(glm::mat4), &c.proj[0][0]);         offset += sizeof(glm::mat4);
+    glBufferSubData(cam_ubo.target, offset, sizeof(glm::vec4), &pos.x);                offset += sizeof(glm::vec4);
+    glBufferSubData(cam_ubo.target, offset, sizeof(GLuint),    &viewport.width);       offset += sizeof(GLuint);
+    glBufferSubData(cam_ubo.target, offset, sizeof(GLuint),    &viewport.height);      offset += sizeof(GLuint);
+    glBufferSubData(cam_ubo.target, offset, sizeof(float),     &win_center);           offset += sizeof(float);
+    glBufferSubData(cam_ubo.target, offset, sizeof(float),     &win_width);            offset += sizeof(float);
+    glBufferSubData(cam_ubo.target, offset, sizeof(glm::vec4), &volume_scale.x);
 
     bindFramebuffer(viewport.fbo);
     glViewport(0, 0, viewport.width, viewport.height);
