@@ -12,7 +12,7 @@ __global__ void generateSphereKernel(float* voxels, uint32_t width, uint32_t hei
   // --- Kernel setup ---
   uint32_t x = blockIdx.x * blockDim.x + threadIdx.x;
   uint32_t y = blockIdx.y * blockDim.y + threadIdx.y;
-  uint32_t z = blockIdx.z * blockDim.y + threadIdx.z;
+  uint32_t z = blockIdx.z * blockDim.z + threadIdx.z;
 
   // This makes sure that the kernel isn't trying to access data outside the grid
   // This shouldn't be an issue in how I calcuated the grid size, but it's good to be safe

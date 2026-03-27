@@ -95,7 +95,7 @@ void rayMarch(vec3 ray_origin, vec3 ray_dir, out vec4 albedo, out vec4 depth, ou
       }
 
       vec3 sample_color = vec3(1.0, 0.8, 0.6) * density;
-      float sample_alpha = clamp(density * step_size * 50.0, 0.0, 1.0);
+      float sample_alpha = clamp(density * step_size * 100.0, 0.0, 1.0);
 
       accumulated_color.rgb += sample_color * sample_alpha * (1.0 - accumulated_color.a);
       accumulated_color.a += sample_alpha * (1.0 - accumulated_color.a);

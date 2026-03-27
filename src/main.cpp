@@ -16,6 +16,7 @@
 
 #include "preprocessing/shapes.hpp"
 #include "preprocessing/voxel_grid.hpp"
+#include "preprocessing/dicom_utils.hpp"
 
 int main() {
   using namespace graphics;
@@ -23,8 +24,8 @@ int main() {
 
   AppConfig config{
     .title      = "VoxRay",
-    .width      = 1280,
-    .height     = 720,
+    .width      = 1920,
+    .height     = 1080,
     .gl_major   = 4,
     .gl_minor   = 3
   };
@@ -34,10 +35,19 @@ int main() {
 
   ui::initUI(app.window.get(), app.gl_context.get());
 
+  glewExperimental = GL_TRUE;
   if (glewInit() != GLEW_OK) {
     SDL_Log("Failed to initialize GLEW");
     return 1;
   }
+
+  auto vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+  auto renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+  printf("GL_VENDOR=");
+  printf(vendor?vendor:"?");
+  printf("\nGL_RENDERER=");
+  printf(renderer?renderer:"?");
+  printf("\n");
 
   std::string error;
   const char* compute_path = "shaders/compute.glsl";
@@ -66,12 +76,20 @@ int main() {
   frame::beginFrame(timer);
 
   // --- Create voxel sphere ---
-  int grid_res = 512;
-  preprocessing::VoxelGrid voxels(grid_res, grid_res, grid_res);
-  preprocessing::generateSphere(voxels, float(grid_res) / 2.f, float(grid_res) / 2.f, float(grid_res) / 2.f, float(grid_res) / 2.f);
+  // int grid_res = 128;
+  // preprocessing::VoxelGrid voxels(grid_res, grid_res, grid_res);
+  // preprocessing::generateSphere(voxels, float(grid_res) / 2.f, float(grid_res) / 2.f, float(grid_res) / 2.f, float(grid_res) / 2.f);
+
+  // --- Load DICOM ---
+  preprocessing::VoxelGrid voxels;
+  preprocessing::DicomMetadata dicom_meta;
+  if (!preprocessing::importDicomSeries("/home/jchristensen/Dev/dataverse_files/", voxels, dicom_meta)) {
+    SDL_Log("Failed to laod DICOM series");
+    return 1;
+  }
 
   Texture3D voxel_texture;
-  makeTexture3D(GL_R32F, grid_res, grid_res, grid_res, voxel_texture);
+  makeTexture3D(GL_R32F, dicom_meta.width, dicom_meta.height, dicom_meta.depth, voxel_texture);
   uploadTexture3D(voxel_texture, voxels.data.data());
 
 

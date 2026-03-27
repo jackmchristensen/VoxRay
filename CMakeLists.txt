@@ -55,6 +55,7 @@ add_executable(VoxRay
   ${SRC_DIR}/ui/imgui_utils.cpp
   ${SRC_DIR}/ui/windows.cpp
   ${SRC_DIR}/preprocessing/shapes.cu
+  ${SRC_DIR}/preprocessing/dicom_utils.cpp
 )
 target_include_directories(VoxRay PRIVATE ${SRC_DIR})
 
