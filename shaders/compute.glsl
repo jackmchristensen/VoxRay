@@ -7,11 +7,12 @@ layout(std140, binding = 0) uniform camera_block {
   mat4 u_view;
   mat4 u_proj;
   vec4 u_cam;
+  vec4 u_volume_scale;
   int u_width;
   int u_height;
   float u_win_center;
   float u_win_width;
-  vec4 u_volume_scale;
+  float u_density_scale;
 };
 
 // Render passes
@@ -101,7 +102,7 @@ void rayMarch(vec3 ray_origin, vec3 ray_dir, out vec4 albedo, out vec4 depth, ou
     // Apply HU windowing: remap so that win_center is mid-gray
     // Clamp values so air is not shown
     float half_width = u_win_width * 0.5;
-    float density = clamp((raw - (u_win_center - half_width)) / u_win_width, 0.0, 1.0);
+    float density = clamp((raw - (u_win_center - half_width)) / u_win_width * u_density_scale, 0.0, 1.0);
 
     if (density > 0.01) {
       if (!hit) {

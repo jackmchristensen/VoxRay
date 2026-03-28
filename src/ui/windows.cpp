@@ -13,16 +13,12 @@ namespace ui {
     ImGui::End();
   }
 
-  void renderControls() {
+  void renderControls(controls::WinData& window) {
     ImGui::Begin("Controls");
 
-    float win_center = 0.5f;
-    float win_width = 0.5f;
-    float dendsity_scale = 0.5f;
-
-    ImGui::SliderFloat("Window Center", &win_center, 0.0f, 1.0f);
-    ImGui::SliderFloat("Window Width", &win_width, 0.01f, 1.0f);
-    ImGui::SliderFloat("Density Scale", &dendsity_scale, 0.1f, 1.0f);
+    ImGui::SliderFloat("Window Center", &window.win_center, 0.0f, 1.0f);
+    ImGui::SliderFloat("Window Width", &window.win_width, 0.01f, 1.0f);
+    ImGui::SliderFloat("Density Scale", &window.density_scale, 0.1f, 1.0f);
 
     ImGui::End();
   }

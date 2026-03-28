@@ -183,6 +183,10 @@ void updateState(UpdateFlags& flags, AppContext& app, InputState& input, const u
     flags &= ~PAN;
   }
 
+  if (flags & CONTROLS) {
+    flags &= ~CONTROLS;
+  }
+
   if (camera_moved) {
     cam::updateView(camera);
     cam::updateProject(camera);

@@ -2,6 +2,7 @@
 #include "app/app_context.hpp"
 #include "app/camera.hpp"
 #include "app/frame_data.hpp"
+#include "app/controls_data.hpp"
 
 #include "ui/imgui_utils.hpp"
 #include "ui/viewport_window.hpp"
@@ -17,6 +18,7 @@
 #include "preprocessing/shapes.hpp"
 #include "preprocessing/voxel_grid.hpp"
 #include "preprocessing/dicom_utils.hpp"
+#include "ui/windows.hpp"
 
 #include <algorithm>
 
@@ -26,8 +28,8 @@ int main() {
 
   AppConfig config{
     .title      = "VoxRay",
-    .width      = 1920,
-    .height     = 1080,
+    .width      = 2160,
+    .height     = 1280,
     .gl_major   = 4,
     .gl_minor   = 3
   };
@@ -70,7 +72,7 @@ int main() {
   if (!makeVao(vao)) return 1;
 
   Buffer cam_ubo{};
-  if (!makeBuffer(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*2 + sizeof(glm::vec4)*2 + sizeof(GLuint)*2 + sizeof(float)*2, nullptr, GL_DYNAMIC_DRAW, cam_ubo)) return 1;
+  if (!makeBuffer(GL_UNIFORM_BUFFER, sizeof(glm::mat4)*2 + sizeof(glm::vec4)*2 + sizeof(GLuint)*2 + sizeof(float)*3, nullptr, GL_DYNAMIC_DRAW, cam_ubo)) return 1;
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, cam_ubo.id);
 
   frame::FrameTimer timer = frame::makeFrameTimer();
@@ -111,6 +113,9 @@ int main() {
   bindTexture3D(voxel_texture, 0);
   bindForCompute(targets);
 
+  controls::WinData window;
+  controls::WinData old_window = window;
+
   UpdateFlags flags = NONE;
   while ((flags & STOP) != STOP) {
     // Gather frame rate data
@@ -127,7 +132,12 @@ int main() {
     ImGui::NewFrame();
     ImGui::DockSpaceOverViewport();
     ui::renderViewport(viewport, flags);
-    ui::renderUI(frame_data);
+    ui::renderUI(frame_data, window);
+
+    if (old_window.win_center != window.win_center || old_window.win_width != window.win_width || old_window.density_scale != window.density_scale) {
+      flags |= CONTROLS;
+      old_window = window;
+    }
 
     // Call compute shader only if needed
     if (flags) {
@@ -160,20 +170,17 @@ int main() {
       0.f
     );
 
-
-    float win_center = 0.3f;
-    float win_width  = 0.4f;
-
     GLuint offset = 0;
     glBindBuffer(cam_ubo.target, cam_ubo.id);
-    glBufferSubData(cam_ubo.target, offset, sizeof(glm::mat4), &c.view[0][0]);         offset += sizeof(glm::mat4);
-    glBufferSubData(cam_ubo.target, offset, sizeof(glm::mat4), &c.proj[0][0]);         offset += sizeof(glm::mat4);
-    glBufferSubData(cam_ubo.target, offset, sizeof(glm::vec4), &pos.x);                offset += sizeof(glm::vec4);
-    glBufferSubData(cam_ubo.target, offset, sizeof(GLuint),    &viewport.width);       offset += sizeof(GLuint);
-    glBufferSubData(cam_ubo.target, offset, sizeof(GLuint),    &viewport.height);      offset += sizeof(GLuint);
-    glBufferSubData(cam_ubo.target, offset, sizeof(float),     &win_center);           offset += sizeof(float);
-    glBufferSubData(cam_ubo.target, offset, sizeof(float),     &win_width);            offset += sizeof(float);
-    glBufferSubData(cam_ubo.target, offset, sizeof(glm::vec4), &volume_scale.x);
+    glBufferSubData(cam_ubo.target, offset, sizeof(glm::mat4), &c.view[0][0]);          offset += sizeof(glm::mat4);
+    glBufferSubData(cam_ubo.target, offset, sizeof(glm::mat4), &c.proj[0][0]);          offset += sizeof(glm::mat4);
+    glBufferSubData(cam_ubo.target, offset, sizeof(glm::vec4), &pos.x);                 offset += sizeof(glm::vec4);
+    glBufferSubData(cam_ubo.target, offset, sizeof(glm::vec4), &volume_scale.x);        offset += sizeof(glm::vec4);
+    glBufferSubData(cam_ubo.target, offset, sizeof(GLuint),    &viewport.width);        offset += sizeof(GLuint);
+    glBufferSubData(cam_ubo.target, offset, sizeof(GLuint),    &viewport.height);       offset += sizeof(GLuint);
+    glBufferSubData(cam_ubo.target, offset, sizeof(float),     &window.win_center);     offset += sizeof(float);
+    glBufferSubData(cam_ubo.target, offset, sizeof(float),     &window.win_width);      offset += sizeof(float);
+    glBufferSubData(cam_ubo.target, offset, sizeof(float),     &window.density_scale);
 
     bindFramebuffer(viewport.fbo);
     glViewport(0, 0, viewport.width, viewport.height);

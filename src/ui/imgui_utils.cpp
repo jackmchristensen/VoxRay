@@ -25,10 +25,10 @@ namespace ui {
 
     ImGuiStyle& style = ImGui::GetStyle();
     // style.ScaleAllSizes(1.875f);
-    // style.FontScaleDpi = 1.875f;
+    style.FontScaleDpi = 1.5f;
 
-    // io.ConfigDpiScaleFonts = true;
-    // io.ConfigDpiScaleViewports = true;
+    io.ConfigDpiScaleFonts = true;
+    io.ConfigDpiScaleViewports = true;
 
     ImGui_ImplSDL3_InitForOpenGL(window, context);
     ImGui_ImplOpenGL3_Init();
@@ -66,9 +66,9 @@ namespace ui {
     ImGui::End();
   }
 
-  void renderUI(const frame::FrameData& frame_data) {
+  void renderUI(const frame::FrameData& frame_data, controls::WinData& window) {
     renderDiagnostics(frame_data);
-    renderControls();
+    renderControls(window);
   }
 
 } // namespace ui
