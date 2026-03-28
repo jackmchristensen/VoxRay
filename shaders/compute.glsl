@@ -31,6 +31,10 @@ mat4 u_volume_rotation = mat4(
   0.0,  0.0,  0.0,  1.0
 );
 
+float hash(vec2 p) {
+  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+
 vec4 drawBounds(float thickness, vec3 hit_point, vec3 box_min, vec3 box_max) {
   // Normalize position to [0,1] range within the box
   vec3 p = (hit_point - box_min) / (box_max - box_min);
@@ -66,7 +70,7 @@ vec2 intersectAABB(vec3 ray_origin, vec3 ray_dir, vec3 box_min, vec3 box_max) {
   return vec2(t_near, t_far);
 }
 
-void rayMarch(vec3 ray_origin, vec3 ray_dir, out vec4 albedo, out vec4 depth, out vec4 normal) {
+void rayMarch(vec3 ray_origin, vec3 ray_dir, out vec4 albedo, out vec4 depth, out vec4 normal, ivec2 pixel) {
   vec3 box_max = u_volume_scale.xyz;
   vec3 box_min = -box_max;
 
@@ -79,11 +83,12 @@ void rayMarch(vec3 ray_origin, vec3 ray_dir, out vec4 albedo, out vec4 depth, ou
     normal = vec4(0.0);
     return;
   }
-
-  float t = max(intersection.x, 0.0);
+ 
   float t_end = intersection.y;
-  float step_size = 0.01;
-  int max_steps = 500;
+  float step_size = 0.005;
+  int max_steps = 1000;
+  float jitter = hash(vec2(pixel)) * step_size;
+  float t = max(intersection.x, 0.0) + jitter;
 
   vec4 accumulated_color = vec4(0.0);
   vec3 first_hit_normal = vec3(0.0);
@@ -144,7 +149,7 @@ void main() {
   vec3 local_dir    = inv_rot * ray_dir;
 
   vec4 albedo, depth, normal = vec4(0.0);
-  rayMarch(local_origin, local_dir, albedo, depth, normal);
+  rayMarch(local_origin, local_dir, albedo, depth, normal, pixel);
 
   imageStore(u_albedo, pixel, albedo);
   imageStore(u_depth, pixel, depth);

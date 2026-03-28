@@ -134,7 +134,7 @@ int main() {
     ui::renderViewport(viewport, flags);
     ui::renderUI(frame_data, window);
 
-    if (old_window.win_center != window.win_center || old_window.win_width != window.win_width || old_window.density_scale != window.density_scale) {
+    if (old_window.win_center != window.win_center || old_window.win_width != window.win_width || old_window.density_scale != window.density_scale || old_window.scale != window.scale) {
       flags |= CONTROLS;
       old_window = window;
     }
@@ -168,7 +168,7 @@ int main() {
       dicom_meta.height * dicom_meta.spacing_y / max_dim,
       dicom_meta.depth  * dicom_meta.spacing_z / max_dim,
       0.f
-    );
+    ) * window.scale;
 
     GLuint offset = 0;
     glBindBuffer(cam_ubo.target, cam_ubo.id);

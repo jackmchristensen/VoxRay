@@ -16,6 +16,7 @@ namespace ui {
   void renderControls(controls::WinData& window) {
     ImGui::Begin("Controls");
 
+    ImGui::SliderFloat("Scale", &window.scale, 0.1f, 5.0f);
     ImGui::SliderFloat("Window Center", &window.win_center, 0.0f, 1.0f);
     ImGui::SliderFloat("Window Width", &window.win_width, 0.01f, 1.0f);
     ImGui::SliderFloat("Density Scale", &window.density_scale, 0.1f, 1.0f);
