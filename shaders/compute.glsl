@@ -94,8 +94,8 @@ void rayMarch(vec3 ray_origin, vec3 ray_dir, out vec4 albedo, out vec4 depth, ou
     if (accumulated_color.a >= 0.95) break;
 
     vec3 world_pos = ray_origin + ray_dir * t;
-    vec3 rotated_pos = (u_volume_rotation * vec4(world_pos, 1.0)).xyz;
-    vec3 tex_pos = (rotated_pos - box_min) / (box_max - box_min);
+    // vec3 rotated_pos = (u_volume_rotation * vec4(world_pos, 1.0)).xyz;
+    vec3 tex_pos = (world_pos - box_min) / (box_max - box_min);
 
     float raw = texture(u_voxel_data, tex_pos).r;
 
@@ -139,8 +139,12 @@ void main() {
   vec4 target = inv_ViewProj * vec4(uv.x, uv.y, 1.0, 1.0);
   vec3 ray_dir = normalize(target.xyz / target.w - ray_origin);
 
+  mat3 inv_rot = transpose(mat3(-u_volume_rotation));
+  vec3 local_origin = inv_rot * ray_origin;
+  vec3 local_dir    = inv_rot * ray_dir;
+
   vec4 albedo, depth, normal = vec4(0.0);
-  rayMarch(ray_origin, ray_dir, albedo, depth, normal);
+  rayMarch(local_origin, local_dir, albedo, depth, normal);
 
   imageStore(u_albedo, pixel, albedo);
   imageStore(u_depth, pixel, depth);
