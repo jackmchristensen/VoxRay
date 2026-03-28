@@ -2,7 +2,7 @@
 layout(local_size_x = 16, local_size_y = 16) in;
 
 // Currently a catchall block for camera, window, and app data
-// TODO separate data into separate blocks for organization
+// TODO: separate data into separate blocks for organization
 layout(std140, binding = 0) uniform camera_block {
   mat4 u_view;
   mat4 u_proj;
@@ -21,6 +21,14 @@ layout(rgba32f, binding = 2) uniform image2D u_normal;
 
 // Voxel texture
 layout(binding = 0) uniform sampler3D u_voxel_data;
+
+// Rotation matrix for temp viewing purposes
+mat4 u_volume_rotation = mat4(
+  1.0,  0.0,  0.0,  0.0,
+  0.0,  0.0,  1.0,  0.0,
+  0.0, -1.0,  0.0,  0.0,
+  0.0,  0.0,  0.0,  1.0
+);
 
 vec4 drawBounds(float thickness, vec3 hit_point, vec3 box_min, vec3 box_max) {
   // Normalize position to [0,1] range within the box
@@ -85,7 +93,8 @@ void rayMarch(vec3 ray_origin, vec3 ray_dir, out vec4 albedo, out vec4 depth, ou
     if (accumulated_color.a >= 0.95) break;
 
     vec3 world_pos = ray_origin + ray_dir * t;
-    vec3 tex_pos = (world_pos - box_min) / (box_max - box_min);
+    vec3 rotated_pos = (u_volume_rotation * vec4(world_pos, 1.0)).xyz;
+    vec3 tex_pos = (rotated_pos - box_min) / (box_max - box_min);
 
     float raw = texture(u_voxel_data, tex_pos).r;
 

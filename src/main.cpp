@@ -77,11 +77,6 @@ int main() {
   frame::FrameData frame_data{};
   frame::beginFrame(timer);
 
-  // --- Create voxel sphere ---
-  // int grid_res = 128;
-  // preprocessing::VoxelGrid voxels(grid_res, grid_res, grid_res);
-  // preprocessing::generateSphere(voxels, float(grid_res) / 2.f, float(grid_res) / 2.f, float(grid_res) / 2.f, float(grid_res) / 2.f);
-
   // --- Load DICOM ---
   preprocessing::VoxelGrid voxels;
   preprocessing::DicomMetadata dicom_meta;
