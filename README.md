@@ -16,11 +16,44 @@ The rendering pipeline is a deferred-style setup with separate albedo, depth, an
 
 ## Building
 
-Requires: CUDA toolkit, ITK, SDL3, GLEW, OpenGL 4.3+
+Requires an NVIDIA GPU with CUDA support. CUDA toolkit must be installed separately: https://developer.nvidia.com/cuda-downloads
 
+### Option 1: vcpkg (recommended)
+```bash
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
+cmake --build build
+```
+
+### Option 2: System packages
+
+**Arch**
+```bash
+sudo pacman -S cuda glew sdl3 itk
+```
+
+**Ubuntu/Debian (CUDA requires NVIDIA installer)**
+```bash
+sudo apt install libglew-dev libsdl3-dev libinsighttoolkit5-dev
+```
+
+**Fedora**
+```bash
+sudo dnf install glew-devel SDL3-devel InsightToolkit-devel
+```
+
+**Build**
 ```bash
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
+```
+
+## Run
+
+Pass the path to your DICOM series as an argument to the executable:
+
+```bash
+cd bin/release
+./VoxRay /path/to/DICOM/
 ```
 
 ## Dataset
