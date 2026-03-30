@@ -82,7 +82,7 @@ int main() {
   // --- Load DICOM ---
   preprocessing::VoxelGrid voxels;
   preprocessing::DicomMetadata dicom_meta;
-  if (!preprocessing::importDicomSeries("/home/jchristensen/Dev/dataverse_files/", voxels, dicom_meta)) {
+  if (!preprocessing::importDicomSeries("/home/jchristensen/Dev/dataverse_files_VHFCT/", voxels, dicom_meta)) {
     SDL_Log("Failed to laod DICOM series");
     return 1;
   }
