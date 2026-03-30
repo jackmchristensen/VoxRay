@@ -28,6 +28,7 @@ Makefile
 *.swp
 *.swo
 *~
+justfile
 
 # OS-specific files
 .DS_Store
