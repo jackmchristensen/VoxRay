@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "voxray",
+  "version": "0.1.0",
+  "dependencies": [
+    {
+      "name": "glew",
+      "version>=": "2.2.0"
+    },
+    {
+      "name": "sdl3"
+    },
+    {
+      "name": "itk",
+      "version>=": "5.4.0",
+      "features": ["gdcm"]
+    },
+    {
+      "name": "glm"
+    }
+  ]
+}
