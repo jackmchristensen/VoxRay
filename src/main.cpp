@@ -22,7 +22,14 @@
 
 #include <algorithm>
 
-int main() {
+int main(int argc, char* argv[]) {
+  if (argc < 2) {
+    printf("Must pass DICOM directory path\n");
+    return 1;
+  }
+
+  const char* scan_path = argv[1];
+
   using namespace graphics;
   using namespace cam;
 
@@ -82,7 +89,7 @@ int main() {
   // --- Load DICOM ---
   preprocessing::VoxelGrid voxels;
   preprocessing::DicomMetadata dicom_meta;
-  if (!preprocessing::importDicomSeries("/home/jchristensen/Dev/dataverse_files_VHFCT/", voxels, dicom_meta)) {
+  if (!preprocessing::importDicomSeries(scan_path, voxels, dicom_meta)) {
     SDL_Log("Failed to laod DICOM series");
     return 1;
   }
@@ -90,7 +97,6 @@ int main() {
   Texture3D voxel_texture;
   makeTexture3D(GL_R32F, dicom_meta.width, dicom_meta.height, dicom_meta.depth, voxel_texture);
   uploadTexture3D(voxel_texture, voxels.data.data());
-
 
   // --- Viewport subwindow ---
   Framebuffer framebuffer{}; Texture color_attach{};
@@ -138,6 +144,11 @@ int main() {
       flags |= CONTROLS;
       old_window = window;
     }
+
+    // if (old_window.path[0] != window.path[0]) {
+    //   printf("Path changed!\n");
+    //   old_window = window;
+    // }
 
     // Call compute shader only if needed
     if (flags) {
