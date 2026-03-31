@@ -4,6 +4,7 @@
 #include "app/frame_data.hpp"
 #include "app/controls_data.hpp"
 
+#include "preprocessing/compute_gradient.hpp"
 #include "ui/imgui_utils.hpp"
 #include "ui/viewport_window.hpp"
 
@@ -93,10 +94,15 @@ int main(int argc, char* argv[]) {
     SDL_Log("Failed to laod DICOM series");
     return 1;
   }
+  preprocessing::computeGradientKernel(voxels);
 
   Texture3D voxel_texture;
   makeTexture3D(GL_R32F, dicom_meta.width, dicom_meta.height, dicom_meta.depth, voxel_texture);
   uploadTexture3D(voxel_texture, voxels.data.data());
+
+  Texture3D normals_texture;
+  makeTexture3D(GL_RGBA32F, dicom_meta.width, dicom_meta.height, dicom_meta.depth, normals_texture);
+  uploadTexture3D(normals_texture, voxels.normals.data());
 
   // --- Viewport subwindow ---
   Framebuffer framebuffer{}; Texture color_attach{};
@@ -117,6 +123,7 @@ int main(int argc, char* argv[]) {
 
   useProgram(compute_prog);
   bindTexture3D(voxel_texture, 0);
+  bindTexture3D(normals_texture, 1);
   bindForCompute(targets);
 
   controls::WinData window;
@@ -145,11 +152,6 @@ int main(int argc, char* argv[]) {
       old_window = window;
     }
 
-    // if (old_window.path[0] != window.path[0]) {
-    //   printf("Path changed!\n");
-    //   old_window = window;
-    // }
-
     // Call compute shader only if needed
     if (flags) {
       updateState(flags, app, input, viewport);
@@ -157,6 +159,7 @@ int main(int argc, char* argv[]) {
 
       useProgram(compute_prog);
       bindTexture3D(voxel_texture, 0);
+      bindTexture3D(normals_texture, 1);
       bindForCompute(targets);
 
       GLuint gx = (viewport.width + 16 - 1) / 16;

@@ -22,6 +22,7 @@ layout(rgba32f, binding = 2) uniform image2D u_normal;
 
 // Voxel texture
 layout(binding = 0) uniform sampler3D u_voxel_data;
+layout(binding = 1) uniform sampler3D u_voxel_normals;
 
 // Rotation matrix for temp viewing purposes
 mat4 u_volume_rotation = mat4(
@@ -94,6 +95,7 @@ void rayMarch(vec3 ray_origin, vec3 ray_dir, out vec4 albedo, out vec4 depth, ou
   vec3 first_hit_normal = vec3(0.0);
   float first_hit_depth = 0.0;
   bool hit = false;
+  vec3 first_hit_tex_pos = vec3(0.0);
 
   for (int step = 0; step < max_steps && t < t_end; step++) {
     if (accumulated_color.a >= 0.95) break;
@@ -113,6 +115,7 @@ void rayMarch(vec3 ray_origin, vec3 ray_dir, out vec4 albedo, out vec4 depth, ou
       if (!hit) {
         first_hit_normal = vec3(0.5, 0.5, 1.0); // Placeholder
         first_hit_depth = t;
+        first_hit_tex_pos = tex_pos;
         hit = true;
       }
 
@@ -128,7 +131,7 @@ void rayMarch(vec3 ray_origin, vec3 ray_dir, out vec4 albedo, out vec4 depth, ou
 
   albedo = accumulated_color;
   depth = hit ? vec4(vec3(first_hit_depth / 5.0), 1.0) : vec4(0.0);
-  normal = hit ? vec4(first_hit_normal, 1.0) : vec4(0.0);
+  normal = hit ? texture(u_voxel_normals, first_hit_tex_pos) : vec4(0.0);
 }
 
 void main() {

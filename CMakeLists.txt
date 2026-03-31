@@ -56,6 +56,7 @@ add_executable(VoxRay
   ${SRC_DIR}/ui/windows.cpp
   ${SRC_DIR}/preprocessing/shapes.cu
   ${SRC_DIR}/preprocessing/dicom_utils.cpp
+  ${SRC_DIR}/preprocessing/compute_gradient.cu
 )
 target_include_directories(VoxRay PRIVATE ${SRC_DIR})
 
@@ -99,3 +100,4 @@ set_target_properties(VoxRay PROPERTIES
 )
 
 set_source_files_properties(${SRC_DIR}/preprocessing/shapes.cu PROPERTIES LANGUAGE CUDA)
+set_source_files_properties(${SRC_DIR}/preprocessing/compute_gradient.cu PROPERTIES LANGUAGE CUDA)

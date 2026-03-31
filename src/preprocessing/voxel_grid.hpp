@@ -1,6 +1,7 @@
 // preprocessing/voxel_grid.hpp
 #pragma once
 #include <vector>
+#include <vector_types.h>
 #include <cstdint>
 
 namespace preprocessing {
@@ -9,6 +10,7 @@ namespace preprocessing {
   // Just handles a single source of data like density
   struct VoxelGrid {
     std::vector<float> data;
+    std::vector<float4> normals;
     uint32_t width;
     uint32_t height;
     uint32_t depth;
@@ -17,6 +19,7 @@ namespace preprocessing {
 
     VoxelGrid(uint32_t w, uint32_t h, uint32_t d) : width(w), height(h), depth(d) {
       data.resize(w * h * d, 0.f);
+      normals.resize(w * h * d);
     }
 
     // Helper to get data at a given position
