@@ -6,7 +6,7 @@ A real-time DICOM volume renderer written in C++/CUDA. Built as a way to learn a
 
 VoxRay loads a DICOM image series (like a CT scan), voxelizes it into a 3D texture on the GPU, and renders it in real-time using a ray marching compute shader. The viewport is interactive, you can orbit, pan, and dolly the camera, and adjust the CT windowing to isolate different tissue densities.
 
-The rendering pipeline is a deferred-style setup with separate albedo, depth, and normal passes.
+The rendering pipeline is a partially deferred-style setup with separate albedo, depth, and normal passes.
 
 ## Features
 
