@@ -36,6 +36,12 @@ float hash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
 }
 
+bool isOutsideBox(vec3 pos, vec3 box_min, vec3 box_max) {
+  return  pos.x < box_min.x || pos.x > box_max.x ||
+          pos.y < box_min.y || pos.y > box_max.y ||
+          pos.z < box_min.z || pos.z > box_max.z;
+}
+
 vec4 drawBounds(float thickness, vec3 hit_point, vec3 box_min, vec3 box_max) {
   // Normalize position to [0,1] range within the box
   vec3 p = (hit_point - box_min) / (box_max - box_min);
@@ -117,9 +123,23 @@ void rayMarch(vec3 ray_origin, vec3 ray_dir, out vec4 albedo, out vec4 depth, ou
         first_hit_depth = t;
         first_hit_tex_pos = tex_pos;
         hit = true;
+
       }
 
-      vec3 sample_color = vec3(1.0, 0.8, 0.6) * density;
+      // Lighting
+      vec3 light_dir = normalize(vec3(-1.0, -1.0, 1.0));
+      float shadow = 0.0;
+      vec3 shadow_pos = world_pos;
+      for (int s = 0; s < 32; s++) {
+        shadow_pos += light_dir * step_size * (1.0 + float(s) * 0.5);
+        if (isOutsideBox(shadow_pos, box_min, box_max)) break;
+        vec3 shadow_tex = (shadow_pos - box_min) / (box_max - box_min);
+        shadow += texture(u_voxel_data, shadow_tex).r * step_size;
+      }
+      float back_occlusion = accumulated_color.a;
+      float transmittance = exp(-shadow * 100.0) * (1.0 - back_occlusion * 0.5);
+
+      vec3 sample_color = vec3(0.75, 0.6, 0.45) * density * transmittance;
       float sample_alpha = clamp(density * step_size * 100.0, 0.0, 1.0);
 
       accumulated_color.rgb += sample_color * sample_alpha * (1.0 - accumulated_color.a);

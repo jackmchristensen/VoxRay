@@ -17,7 +17,11 @@ out vec4 fragColor;
 
 void main() {
   vec4 tex = texture(u_albedo, v_uv);
+  float r = pow(tex.r, 1.0 / 2.2);
+  float g = pow(tex.g, 1.0 / 2.2);
+  float b = pow(tex.b, 1.0 / 2.2);
+  vec3 gamma_corrected = vec3(r, g, b);
   vec3 background = vec3(0.1, 0.1, 0.15);
 
-  fragColor = vec4(mix(background, tex.rgb, tex.a), 1.0);
+  fragColor = vec4(mix(background, gamma_corrected, tex.a), 1.0);
 }

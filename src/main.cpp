@@ -1,6 +1,7 @@
 #include "app/update_flags.hpp"
 #include "app/app_context.hpp"
 #include "app/camera.hpp"
+#include "app/lights.hpp"
 #include "app/frame_data.hpp"
 #include "app/controls_data.hpp"
 
@@ -16,10 +17,8 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl3.h"
 
-#include "preprocessing/shapes.hpp"
 #include "preprocessing/voxel_grid.hpp"
 #include "preprocessing/dicom_utils.hpp"
-#include "ui/windows.hpp"
 
 #include <algorithm>
 
