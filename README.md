@@ -58,4 +58,4 @@ cd bin/release
 
 ## Dataset
 
-Tested with the [Visible Human Project CT Datasets](https://mri.medicine.uiowa.edu/equipment-information/scanner-images/visible-human-project-ct-datasets) female head dataset (512x512x234, 1mm isotropic spacing) and male head dataset (512x512x245, 1mm isotropic spacing).
+Tested with the [Visible Human Project CT Datasets](https://mri.medicine.uiowa.edu/equipment-information/scanner-images/visible-human-project-ct-datasets).
