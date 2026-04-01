@@ -25,6 +25,7 @@ Makefile
 .idea/
 .vscode/
 .cache/
+.clangd
 *.swp
 *.swo
 *~
