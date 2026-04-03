@@ -19,6 +19,7 @@
 
 #include "preprocessing/voxel_grid.hpp"
 #include "preprocessing/dicom_utils.hpp"
+#include "preprocessing/gaussian_blur.hpp"
 
 #include <algorithm>
 
@@ -94,6 +95,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   preprocessing::computeGradientKernel(voxels);
+  preprocessing::gaussianBlur(voxels);
 
   Texture3D voxel_texture;
   makeTexture3D(GL_R32F, dicom_meta.width, dicom_meta.height, dicom_meta.depth, voxel_texture);

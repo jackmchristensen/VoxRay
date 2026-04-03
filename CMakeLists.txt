@@ -57,6 +57,7 @@ add_executable(VoxRay
   ${SRC_DIR}/preprocessing/shapes.cu
   ${SRC_DIR}/preprocessing/dicom_utils.cpp
   ${SRC_DIR}/preprocessing/compute_gradient.cu
+  ${SRC_DIR}/preprocessing/gaussian_blur.cu
 )
 target_include_directories(VoxRay PRIVATE ${SRC_DIR})
 
@@ -101,3 +102,4 @@ set_target_properties(VoxRay PROPERTIES
 
 set_source_files_properties(${SRC_DIR}/preprocessing/shapes.cu PROPERTIES LANGUAGE CUDA)
 set_source_files_properties(${SRC_DIR}/preprocessing/compute_gradient.cu PROPERTIES LANGUAGE CUDA)
+set_source_files_properties(${SRC_DIR}/preprocessing/gaussian_blur.cu PROPERTIES LANGUAGE CUDA)
